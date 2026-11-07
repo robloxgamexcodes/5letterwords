@@ -6,8 +6,8 @@
 
 :root {
   --bg: #f6f8f6; --surface: #ffffff; --surface-2: #f1f5f2; --text: #17211b; --muted: #5d6b62;
-  --border: #dde4de; --border-strong: #c3cec5; --accent: #2f7d55; --accent-dark: #25663f; --accent-soft: #e4f1e8;
-  --green: #5b9b70; --yellow: #e6c548; --grey: #7d8580; --ok-bg: #d3ebd9; --near-bg: #f8ebb0;
+  --border: #dde4de; --border-strong: #c3cec5; --accent: #54ad3f; --accent-dark: #54ad3f; --accent-soft: #e4f1e8;
+  --green: #54ad3f; --yellow: #e6c548; --grey: #7d8580; --ok-bg: #d3ebd9; --near-bg: #f8ebb0;
   --shadow: 0 1px 2px rgba(20,40,28,.05), 0 8px 24px rgba(20,40,28,.05);
   --bw: 1px;
   color-scheme: light;

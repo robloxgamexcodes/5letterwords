@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ALPHABET, LENGTHS, lengthPath, listPath } from '../lib/site';
+import { listCount, totalWords, wordsWhere, fmt } from '../lib/words';
+const groups = [['kind-start', 'Starting with', 'start'], ['kind-end', 'Ending in', 'end'], ['kind-contain', 'Containing', 'contain']] as const;
+---
+<BaseLayout title="Word Lists: Every Length, Every Letter" description={`Browse 3 to 7 letter words by first letter, last letter or any letter they contain. ${fmt(listCount())} lists covering the full ${fmt(totalWords)} word dictionary.`} image="https://5letter-words.io/data/image/options/5letter-words.io1.png">
+  <div class="container page">
+    <header class="page-head">
+      <h1>Word Lists</h1>
+      <p>Pick a length, then a letter. Every list below is a full word list you can browse or print.</p>
+    </header>
+    {LENGTHS.map((len) => (
+      <section class="card list-hub" aria-labelledby={`len-${len}`}>
+        <div class="list-hub-head">
+          <span class="list-hub-num" aria-hidden="true">{len}</span>
+          <h2 id={`len-${len}`}><a href={lengthPath(len)}>{len} letter words</a></h2>
+          <a class="btn btn-ghost" href={lengthPath(len)}>Open the finder</a>
+        </div>
+        {groups.map(([, label, kind]) => (
+          <>
+            <h3>{label}</h3>
+            <ul class="letter-grid">
+              {ALPHABET.filter((l) => wordsWhere(len, kind, l).length).map((l) => <li><a href={listPath(len, kind, l)}>{l.toUpperCase()}</a></li>)}
+            </ul>
+          </>
+        ))}
+      </section>
+    ))}
+  </div>
+</BaseLayout>

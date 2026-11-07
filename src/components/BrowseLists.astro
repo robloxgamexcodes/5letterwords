@@ -1,0 +1,35 @@
+---
+import { ALPHABET, listPath } from '../lib/site';
+import { wordsWhere, prefixCounts } from '../lib/words';
+interface Props { len: number; currentStart?: string; currentEnd?: string; prefixLetter?: string; }
+const { len, currentStart, currentEnd, prefixLetter } = Astro.props;
+const starts = ALPHABET.filter((l) => wordsWhere(len, 'start', l).length);
+const ends = ALPHABET.filter((l) => wordsWhere(len, 'end', l).length);
+const prefixes = prefixLetter ? prefixCounts(len, prefixLetter) : [];
+---
+<section class="browse card block" aria-labelledby="browse-title">
+  <p class="eyebrow" id="browse-title">Browse {len} letter words</p>
+  <h2>{len} letter words by first letter</h2>
+  <ul class="letter-grid">
+    {starts.map((l) => (
+      <li>{l === currentStart ? <span class="current">{l.toUpperCase()}</span> : <a href={listPath(len, 'start', l)}>{l.toUpperCase()}</a>}</li>
+    ))}
+  </ul>
+  <h2>{len} letter words by last letter</h2>
+  <ul class="letter-grid">
+    {ends.map((l) => (
+      <li>{l === currentEnd ? <span class="current">{l.toUpperCase()}</span> : <a href={listPath(len, 'end', l)}>{l.toUpperCase()}</a>}</li>
+    ))}
+  </ul>
+  {prefixes.length > 0 && (
+    <>
+      <h2>{len} letter words starting {prefixLetter!.toUpperCase()} + one more letter</h2>
+      <ul class="prefix-grid">
+        {prefixes.map(({ prefix, n }) => (
+          <li><a href={listPath(len, 'start', prefix)}>{prefix.toUpperCase()}<small>{n}</small></a></li>
+        ))}
+      </ul>
+    </>
+  )}
+  <p class="all-lists"><a href="/word-lists">All word lists — every length, every letter</a></p>
+</section>

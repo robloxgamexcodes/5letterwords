@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FinderPage from '../components/FinderPage.astro';
+import FinderBlock from '../components/FinderBlock.astro';
+import BrowseLists from '../components/BrowseLists.astro';
+import GamePage from '../components/GamePage.astro';
+import { GAMES } from '../lib/games';
+import { listHeading, listMetaDesc, listSub } from '../lib/copy';
+import { listPath, type ListKind } from '../lib/site';
+import { listRoutes, wordsWhere } from '../lib/words';
+
+export function getStaticPaths() {
+  const finders = [3, 4, 6, 7].map((len) => ({ params: { slug: `${len}-letter-word-finder` }, props: { type: 'finder', len } }));
+  const lists = listRoutes().map((r) => ({
+    params: { slug: listPath(r.len, r.kind, r.value).slice(1) },
+    props: { type: 'list', ...r },
+  }));
+  const games = GAMES.map((g) => ({ params: { slug: g.slug }, props: { type: 'game', slug: g.slug } }));
+  return [...finders, ...lists, ...games];
+}
+
+const props = Astro.props as any;
+const game = props.type === 'game' ? GAMES.find((g) => g.slug === props.slug)! : null;
+const kind = props.kind as ListKind;
+const count = props.type === 'list' ? wordsWhere(props.len, kind, props.value).length : 0;
+const title = props.type === 'list' ? `${listHeading(props.len, kind, props.value)}: All ${count.toLocaleString('en-US')}` : '';
+---
+{props.type === 'finder' && <FinderPage len={props.len} />}
+{props.type === 'game' && game && <GamePage game={game} />}
+{props.type === 'list' && (
+  <BaseLayout title={title} description={listMetaDesc(props.len, kind, props.value, count)}>
+    <div class="container page">
+      <header class="page-head">
+        <h1>{listHeading(props.len, kind, props.value)}</h1>
+        <p>{listSub(props.len, kind, props.value, count)}</p>
+      </header>
+      <FinderBlock
+        len={props.len}
+        base={{ kind, value: props.value }}
+        statusLabel="All words"
+        pageSize={72}
+        activeLength={props.len}
+      />
+      <div class="blocks">
+      <BrowseLists
+        len={props.len}
+        currentStart={kind === 'start' && props.value.length === 1 ? props.value : undefined}
+        currentEnd={kind === 'end' ? props.value : undefined}
+        prefixLetter={kind === 'start' ? props.value[0] : undefined}
+      />
+      </div>
+    </div>
+  </BaseLayout>
+)}

@@ -1,0 +1,11 @@
+# 5 Letter Words
+
+> Free word finders for Wordle, Scrabble, crosswords and other word games.
+
+## Tools
+- 5 letter word finder (also 3, 4, 6 and 7 letters)
+- Wordle solver, word unscrambler, anagram solver, word scramble solver
+- Word lists: every length by first letter, last letter and contained letter
+
+## Note
+Word lists vary by game; check a word against your own game's dictionary when it matters.

@@ -1,0 +1,56 @@
+---
+import WordFinder from './finder/WordFinder';
+import { GAME_LINKS, LENGTHS, TOOL_CARDS, lengthPath } from '../lib/site';
+import type { Base } from '../lib/filter';
+import { dictionariesFor, getData, matchesBaseServer } from '../lib/words';
+
+interface Props {
+  len: number;
+  base?: Base;
+  dictionary?: string;
+  statusLabel: 'Sample' | 'All words';
+  pageSize: number;
+  activeLength?: number | null;
+}
+const { len, base = null, dictionary = 'all', statusLabel, pageSize, activeLength = len } = Astro.props;
+const data = getData(len);
+const set = dictionary !== 'all' ? data.sets[dictionary] : null;
+const pool = data.words.filter((w, i) => (!set || set.has(i)) && matchesBaseServer(w, base));
+const dictionaries = dictionariesFor(len);
+const isSample = statusLabel === 'Sample';
+const initialWords = pool.slice(0, pageSize);
+const defaultDictionary = dictionaries.includes(dictionary) ? dictionary : 'all';
+---
+<div class="finder-block">
+  <div class="length-picker" role="group" aria-label="Word length">
+    <span class="length-label">Length</span>
+    {LENGTHS.map((n) => (
+      <a href={lengthPath(n)} class={n === activeLength ? 'on' : ''} aria-current={n === activeLength ? 'true' : undefined}>{n}</a>
+    ))}
+  </div>
+  <div class="finder-layout">
+    <WordFinder
+      client:load
+      len={len}
+      base={base}
+      initialWords={initialWords}
+      initialCount={isSample ? initialWords.length : pool.length}
+      statusLabel={statusLabel}
+      showMoreInitially={!isSample}
+      pageSize={pageSize}
+      dictionaries={dictionaries}
+      defaultDictionary={defaultDictionary}
+    />
+    <aside class="finder-aside" aria-label="More word tools">
+      <ul class="tool-cards">
+        {TOOL_CARDS.map((t) => (
+          <li><a href={t.href}><strong>{t.label}</strong><span>{t.hint}</span></a></li>
+        ))}
+      </ul>
+      <h2>Games</h2>
+      <ul class="game-links">
+        {GAME_LINKS.map((g) => <li><a href={g.href}>{g.label}</a></li>)}
+      </ul>
+    </aside>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Game } from '../lib/games';
+interface Props { game: Game; }
+const { game } = Astro.props;
+---
+<BaseLayout title={game.title} description={game.description}>
+  <div class="container page game-page" data-game={game.slug}>
+    <div class="game-card card">
+      <div class="game-frame" data-frame data-embed={game.embedUrl}>
+        <div class="game-cover">
+          <div class="game-badge" aria-hidden="true">{game.title.slice(0, 1)}</div>
+          <p class="game-name">{game.title}</p>
+          <button type="button" class="btn btn-primary" data-play>Play</button>
+          <p class="game-note" data-note hidden>The game player is not configured yet. Set <code>embedUrl</code> for “{game.title}” in <code>src/lib/games.ts</code>.</p>
+        </div>
+      </div>
+      <div class="game-bar">
+        <h1>{game.title}</h1>
+        <div class="game-actions">
+          <button type="button" class="chip-btn" data-like aria-pressed="false">Like</button>
+          <button type="button" class="chip-btn" data-dislike aria-pressed="false">Dislike</button>
+          <button type="button" class="chip-btn" data-add aria-pressed="false">Add</button>
+          <button type="button" class="chip-btn" data-share>Share</button>
+          <button type="button" class="chip-btn" data-report>Report a bug</button>
+          <button type="button" class="chip-btn" data-fullscreen>Full Screen</button>
+        </div>
+      </div>
+    </div>
+
+    <article class="prose game-copy" data-collapsible>
+      <h2>{game.tagline}</h2>
+      <p>{game.intro}</p>
+      <h3>{game.how.h}</h3>
+      <ul>{game.how.items.map((i) => <li>{i}</li>)}</ul>
+      <h3>Tips for better results</h3>
+      <ul>{game.tips.map((i) => <li>{i}</li>)}</ul>
+      <p>{game.closing}</p>
+    </article>
+    <button type="button" class="btn btn-more" data-more>Show more</button>
+
+    <section class="comments" aria-labelledby="comments-title">
+      <h2 id="comments-title">Comment (0)</h2>
+      <p class="empty">Be the first to comment</p>
+    </section>
+
+    <dialog class="modal" data-share-modal>
+      <form method="dialog">
+        <h2>Share with your friends</h2>
+        <p><strong>{game.title}</strong></p>
+        <input type="text" readonly data-share-url aria-label="Link" />
+        <div class="modal-actions">
+          <button type="button" class="btn btn-primary" data-copy>Copy link</button>
+          <button class="btn btn-ghost" value="close">Close</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog class="modal" data-report-modal>
+      <form method="dialog">
+        <h2>What issue did you find in <strong>{game.title}</strong></h2>
+        <select aria-label="What issue did you find?">
+          <option>The game don't load</option>
+          <option>The game is not working</option>
+          <option>I lost my progress</option>
+          <option>I saw something inappropriate</option>
+          <option>I need help with an in-game purchase</option>
+          <option>I have a suggestion</option>
+          <option>Other</option>
+        </select>
+        <div class="modal-actions">
+          <button class="btn btn-primary" value="send">Send</button>
+          <button class="btn btn-ghost" value="close">Close</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</BaseLayout>
+<script>
+  const root = document.querySelector<HTMLElement>('.game-page');
+  if (root) {
+    const q = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const slug = root.dataset.game!;
+    const frame = q('[data-frame]');
+
+    q('[data-play]').addEventListener('click', () => {
+      const url = frame.dataset.embed;
+      if (!url) { q('[data-note]').hidden = false; return; }
+      const iframe = document.createElement('iframe');
+      iframe.src = url; iframe.title = 'Game'; iframe.allow = 'fullscreen; autoplay'; iframe.loading = 'lazy';
+      frame.replaceChildren(iframe);
+    });
+
+    const key = (k: string) => `5lw:game:${slug}:${k}`;
+    const wire = (sel: string, k: string, exclusive?: string) => {
+      const btn = q<HTMLButtonElement>(sel);
+      const set = (on: boolean) => { btn.setAttribute('aria-pressed', String(on)); btn.classList.toggle('on', on); };
+      try { set(localStorage.getItem(key(k)) === '1'); } catch { /* ignore */ }
+      btn.addEventListener('click', () => {
+        const on = btn.getAttribute('aria-pressed') !== 'true';
+        set(on);
+        try { localStorage.setItem(key(k), on ? '1' : '0'); } catch { /* ignore */ }
+        if (on && exclusive) { const other = q<HTMLButtonElement>(exclusive); other.setAttribute('aria-pressed', 'false'); other.classList.remove('on'); try { localStorage.setItem(key(exclusive.includes('dislike') ? 'dislike' : 'like'), '0'); } catch { /* ignore */ } }
+      });
+    };
+    wire('[data-like]', 'like', '[data-dislike]');
+    wire('[data-dislike]', 'dislike', '[data-like]');
+    wire('[data-add]', 'add');
+
+    q('[data-fullscreen]').addEventListener('click', () => frame.requestFullscreen?.());
+    const share = q<HTMLDialogElement>('[data-share-modal]');
+    q('[data-share]').addEventListener('click', () => { q<HTMLInputElement>('[data-share-url]').value = location.href; share.showModal(); });
+    q('[data-copy]').addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText(location.href); (e.currentTarget as HTMLElement).textContent = 'Copied'; } catch { q<HTMLInputElement>('[data-share-url]').select(); }
+    });
+    q<HTMLDialogElement>('[data-report-modal]');
+    q('[data-report]').addEventListener('click', () => q<HTMLDialogElement>('[data-report-modal]').showModal());
+
+    const copy = q('[data-collapsible]');
+    const more = q<HTMLButtonElement>('[data-more]');
+    copy.classList.add('collapsed');
+    more.addEventListener('click', () => {
+      const collapsed = copy.classList.toggle('collapsed');
+      more.textContent = collapsed ? 'Show more' : 'Show less';
+    });
+  }
+</script>

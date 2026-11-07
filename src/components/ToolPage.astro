@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Unscrambler from './finder/Unscrambler';
+import { MORE_TOOLS } from '../lib/site';
+import { TOOL_PAGES } from '../lib/copy';
+import { dictionariesFor } from '../lib/words';
+
+interface Props { page: keyof typeof TOOL_PAGES; mode: 'unscramble' | 'anagram' | 'scramble'; }
+const { page, mode } = Astro.props;
+const info = TOOL_PAGES[page] as any;
+const dictionaries = dictionariesFor(5);
+const og = `https://5letter-words.io/data/image/game/${page}/${page}.png`;
+const body: Record<string, string[]> = {
+  'word-unscrambler': [
+    'A word unscrambler takes the letters you have and shows every word they can spell. Type your tiles — use ? for a blank — and results are grouped by length with the highest-scoring words first.',
+    'It is handy for Scrabble and Words With Friends racks, crossword gaps and any puzzle where the letters arrive in the wrong order. Narrow the list with Starts with, Ends with, Contains and Length.',
+  ],
+  'anagram-solver': [
+    'An anagram rearranges every letter of one word to make another. This solver lists only the words that use all of your letters, each exactly once.',
+    'Use it for cryptic crossword clues, word games and puzzles that ask for a rearrangement. Add a blank with ? when one letter is unknown.',
+  ],
+  'word-scramble': [
+    'Word scramble puzzles give you a jumble and ask for the word hiding inside. Enter the letters and the solver returns every match, longest first.',
+    'Use the filters to match a known start, end or pattern, and pick a dictionary to keep only the words your game accepts.',
+  ],
+};
+---
+<BaseLayout title={info.title} description={info.description} image={og}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: info.faq.map((f: any) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) })} />
+  </Fragment>
+  <div class="container page">
+    <header class="page-head">
+      <h1>{info.h1}</h1>
+      <p>{info.description}</p>
+    </header>
+    <Unscrambler client:load mode={mode} dictionaries={dictionaries} />
+    <section class="more-tools" aria-labelledby="more-tools-title">
+      <h2 id="more-tools-title">More Word Tools</h2>
+      <ul class="tool-cards tool-cards-wide">
+        {MORE_TOOLS.filter((t) => t.href !== `/${page}`).map((t) => <li><a href={t.href}><strong>{t.label}</strong><span>{t.hint}</span></a></li>)}
+      </ul>
+    </section>
+    <div class="blocks">
+    <section class="card block" aria-label={`${info.title}: How It Works`}>
+      <h2>{info.title}: How It Works</h2>
+      {body[page].map((p) => <p>{p}</p>)}
+    </section>
+    <section class="faq card block" aria-labelledby="faq-title">
+      <h2 id="faq-title">Frequently asked questions</h2>
+      {info.faq.map((f: any) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    </section>
+    </div>
+  </div>
+</BaseLayout>

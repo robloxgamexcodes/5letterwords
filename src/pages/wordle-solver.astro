@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FinderBlock from '../components/FinderBlock.astro';
+import BrowseLists from '../components/BrowseLists.astro';
+import { MORE_TOOLS } from '../lib/site';
+import { TOOL_PAGES } from '../lib/copy';
+import { dictionariesFor, fmt, getData } from '../lib/words';
+
+const info = TOOL_PAGES['wordle-solver'];
+const has = dictionariesFor(5).includes('wordle-answers');
+const dictionary = has ? 'wordle-answers' : 'all';
+const n = has ? getData(5).sets['wordle-answers'].size : getData(5).words.length;
+const description = has
+  ? `Map your board onto the three rows and read off what is still possible. Below the solver is the full list of ${fmt(n)} words Wordle picks its answers from.`
+  : `Map your board onto the three rows and read off what is still possible. Below the solver is the full list of ${fmt(n)} five-letter words.`;
+---
+<BaseLayout title="Wordle Solver" description={description} image="https://5letter-words.io/data/image/game/wordle-solver/wordle-solver.png">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: info.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) })} />
+  </Fragment>
+  <div class="container page">
+    <header class="page-head"><h1>Wordle Solver</h1><p>{description}</p></header>
+    <FinderBlock len={5} dictionary={dictionary} statusLabel="All words" pageSize={72} />
+    <section class="more-tools" aria-labelledby="more-tools-title">
+      <h2 id="more-tools-title">More Word Tools</h2>
+      <ul class="tool-cards tool-cards-wide">
+        {MORE_TOOLS.filter((t) => t.href !== '/wordle-solver').map((t) => <li><a href={t.href}><strong>{t.label}</strong><span>{t.hint}</span></a></li>)}
+      </ul>
+    </section>
+    <div class="blocks">
+    <section class="card block" aria-label="How the Wordle Solver works">
+      <h2>How the Wordle Solver works</h2>
+      <p>The solver goes through every five-letter word and keeps only those that agree with the clues from your board. Play your guess in <a href="/wordle">Wordle</a>, then copy the result into the three rows above.</p>
+      <ul>
+        <li>A <strong>green</strong> tile goes into <strong>Right spot</strong>, in the slot it occupies.</li>
+        <li>A <strong>yellow</strong> tile goes into <strong>Wrong spot</strong>.</li>
+        <li>A <strong>grey</strong> tile goes into <strong>Not in the word</strong>.</li>
+      </ul>
+      <p>Press <strong>Search</strong> and you see every word still consistent with the board — usually a handful after two guesses. You get the shortlist and make the choice yourself, which is the difference between a hint and a spoiler.</p>
+    </section>
+    <section class="card block" aria-label="Specifications">
+      <h2>Specifications</h2>
+      <ul>
+        <li>Shortlist possible answers in seconds</li>
+        <li>Filter by correct, misplaced and excluded letters</li>
+        <li>Handles repeated letters with Count repeats</li>
+        <li>Works on desktop and mobile</li>
+      </ul>
+    </section>
+    <BrowseLists len={5} />
+    <section class="faq card block" aria-labelledby="faq-title">
+      <h2 id="faq-title">Frequently asked questions</h2>
+      {info.faq.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    </section>
+    </div>
+  </div>
+</BaseLayout>

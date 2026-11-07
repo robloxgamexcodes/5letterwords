@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FinderBlock from './FinderBlock.astro';
+import BrowseLists from './BrowseLists.astro';
+import { countFor } from '../lib/words';
+import { finderArticle, finderFaq, finderIntro, finderMeta } from '../lib/copy';
+import { SITE } from '../lib/site';
+
+interface Props { len: number; }
+const { len } = Astro.props;
+const count = countFor(len);
+const meta = finderMeta(len);
+const article = finderArticle(len);
+const faq = finderFaq(len, count);
+const url = len === 5 ? SITE.url : `${SITE.url}/${len}-letter-word-finder`;
+---
+<BaseLayout title={meta.title} description={meta.description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebApplication', name: `${len} Letter Words`, url, applicationCategory: 'GameApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } })} />
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) })} />
+  </Fragment>
+  <div class="container page">
+    <header class="page-head">
+      <h1>{len} Letter Words</h1>
+      <p>{finderIntro(len, count)}</p>
+    </header>
+    <FinderBlock len={len} statusLabel="Sample" pageSize={80} />
+
+    <div class="blocks">
+      <section class="card block" aria-label={article.h2}>
+        <h2>{article.h2}</h2>
+        <p>{article.intro}</p>
+      </section>
+      <section class="card block" aria-label={article.featuresH}>
+        <h2>{article.featuresH}</h2>
+        <ul>{article.features.map((f) => <li>{f}</li>)}</ul>
+      </section>
+      <section class="card block" aria-label={article.stepsH}>
+        <h2>{article.stepsH}</h2>
+        <ol>{article.steps.map((f) => <li>{f}</li>)}</ol>
+      </section>
+      <section class="card block" aria-label={article.tipsH}>
+        <h2>{article.tipsH}</h2>
+        <ul>{article.tips.map((f) => <li>{f}</li>)}</ul>
+      </section>
+      <section class="card block" aria-label={article.gamesH}>
+        <h2>{article.gamesH}</h2>
+        <ul>{article.games.map(([name, href, text]) => <li><a href={href}>{name}</a> — {text}</li>)}</ul>
+      </section>
+
+      <BrowseLists len={len} />
+
+      <section class="faq card block" aria-labelledby="faq-title">
+        <h2 id="faq-title">Frequently asked questions</h2>
+        {faq.map(({ q, a }) => (
+          <details><summary>{q}</summary><p>{a}</p></details>
+        ))}
+      </section>
+    </div>
+  </div>
+</BaseLayout>

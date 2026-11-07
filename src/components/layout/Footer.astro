@@ -1,0 +1,58 @@
+---
+import { FOOTER_COLUMNS, SITE } from '../../lib/site';
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      {FOOTER_COLUMNS.map((col) => (
+        <nav aria-label={col.title}>
+          <h2>{col.title}</h2>
+          <ul>{col.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </nav>
+      ))}
+      <div class="footer-settings">
+        <h2>Settings</h2>
+        <ul>
+          <li>
+            <label class="setting">
+              <span class="setting-name">Dark mode</span>
+              <input type="checkbox" data-setting="dark" />
+              <span class="switch" aria-hidden="true"></span>
+              <span class="setting-state" data-state-for="dark">OFF</span>
+            </label>
+          </li>
+          <li>
+            <label class="setting">
+              <span class="setting-name">Scrabble scores</span>
+              <input type="checkbox" data-setting="scores" />
+              <span class="switch" aria-hidden="true"></span>
+              <span class="setting-state" data-state-for="scores">ON</span>
+            </label>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p class="copyright">©Copyright {SITE.name} {SITE.year}. All rights reserved.</p>
+  </div>
+</footer>
+<script>
+  import { SETTINGS_EVENT, loadSettings, saveSettings, type Settings } from '../../lib/settings';
+
+  const boxes = document.querySelectorAll<HTMLInputElement>('input[data-setting]');
+  const paint = (s: Settings) => {
+    boxes.forEach((box) => {
+      const key = box.dataset.setting as keyof Settings;
+      box.checked = !!s[key];
+      const label = document.querySelector(`[data-state-for="${key}"]`);
+      if (label) label.textContent = s[key] ? 'ON' : 'OFF';
+    });
+  };
+  paint(loadSettings());
+  boxes.forEach((box) =>
+    box.addEventListener('change', () => {
+      const next = { ...loadSettings(), [box.dataset.setting as string]: box.checked };
+      saveSettings(next);
+    }),
+  );
+  window.addEventListener(SETTINGS_EVENT, (e) => paint((e as CustomEvent<Settings>).detail));
+</script>

@@ -1,0 +1,9 @@
+export type ScoreGame = 'scrabble' | 'wwf';
+const SCRABBLE: Record<string, number> = { a:1,b:3,c:3,d:2,e:1,f:4,g:2,h:4,i:1,j:8,k:5,l:1,m:3,n:1,o:1,p:3,q:10,r:1,s:1,t:1,u:1,v:4,w:4,x:8,y:4,z:10 };
+const WWF: Record<string, number> = { a:1,b:4,c:4,d:2,e:1,f:4,g:3,h:3,i:1,j:10,k:5,l:2,m:4,n:2,o:1,p:4,q:10,r:1,s:1,t:1,u:2,v:5,w:4,x:8,y:3,z:10 };
+export const score = (word: string, game: ScoreGame = 'scrabble') => {
+  const table = game === 'wwf' ? WWF : SCRABBLE;
+  let total = 0;
+  for (const ch of word) total += table[ch] ?? 0;
+  return total;
+};

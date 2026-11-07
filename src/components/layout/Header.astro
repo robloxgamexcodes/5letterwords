@@ -1,0 +1,31 @@
+---
+import { NAV } from '../../lib/site';
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+---
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo" aria-label="5 Letter Words home">
+      <span class="logo-tiles" aria-hidden="true"><i>5</i></span>
+      <span class="logo-text">Letter<br />Words</span>
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-btn>
+      <span class="menu-btn-label">Menu</span>
+      <span class="menu-icon" aria-hidden="true"></span>
+    </button>
+    <nav id="site-menu" class="site-nav" aria-label="Main menu" data-menu>
+      <ul>
+        {NAV.map((item) => (
+          <li><a href={item.href} aria-current={(item.href === path) ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  btn?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('open') ?? false;
+    btn.setAttribute('aria-expanded', String(open));
+  });
+</script>

@@ -1,31 +1,98 @@
+
 ---
 import { NAV } from '../../lib/site';
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
 ---
+
 <header class="site-header">
   <div class="container header-inner">
+
+    <!-- Website Logo -->
     <a href="/" class="logo" aria-label="5 Letter Words home">
-      <span class="logo-tiles" aria-hidden="true"><i>5</i></span>
-      <span class="logo-text">Letter<br />Words</span>
+      <img
+        class="logo-image"
+        src="/logo.webp"
+        alt="5 Letter Words"
+        width="615"
+        height="180"
+        fetchpriority="high"
+        decoding="async"
+      />
     </a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-btn>
+
+    <!-- Mobile Menu Button -->
+    <button
+      class="menu-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-menu"
+      data-menu-btn
+    >
       <span class="menu-btn-label">Menu</span>
       <span class="menu-icon" aria-hidden="true"></span>
     </button>
-    <nav id="site-menu" class="site-nav" aria-label="Main menu" data-menu>
+
+    <!-- Website Navigation -->
+    <nav
+      id="site-menu"
+      class="site-nav"
+      aria-label="Main menu"
+      data-menu
+    >
       <ul>
         {NAV.map((item) => (
-          <li><a href={item.href} aria-current={(item.href === path) ? 'page' : undefined}>{item.label}</a></li>
+          <li>
+            <a
+              href={item.href}
+              aria-current={(item.href === path) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
         ))}
       </ul>
     </nav>
+
   </div>
 </header>
+
+<style>
+  /* Website Logo */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  .logo-image {
+    display: block;
+    width: 140px;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* Mobile Logo */
+  @media (max-width: 480px) {
+    .logo-image {
+      width: 140px;
+    }
+  }
+</style>
+
 <script>
-  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
-  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const btn = document.querySelector<HTMLButtonElement>(
+    '[data-menu-btn]'
+  );
+
+  const menu = document.querySelector<HTMLElement>(
+    '[data-menu]'
+  );
+
   btn?.addEventListener('click', () => {
     const open = menu?.classList.toggle('open') ?? false;
+
     btn.setAttribute('aria-expanded', String(open));
   });
 </script>

@@ -45,6 +45,7 @@ const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/'
             <a
               href={item.href}
               aria-current={(item.href === path) ? 'page' : undefined}
+              class={'cta' in item && item.cta ? 'nav-cta' : undefined}
             >
               {item.label}
             </a>

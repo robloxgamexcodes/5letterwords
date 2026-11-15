@@ -1,0 +1,28 @@
+---
+import { fmt } from '../lib/words';
+interface Props { len: number; count: number; intro: string; }
+const { len, count, intro } = Astro.props;
+const letters = 'WORDS'.split('');
+const floaters = [['A', 'g', 8, 8], ['E', 'y', 14, 74], ['R', '', 52, 3], ['T', 'g', 58, 92], ['S', 'y', 30, 91], ['L', '', 26, 5]];
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-bg" aria-hidden="true">
+    {floaters.map(([c, k, top, left], i) => <i class={`fl ${k}`} style={`top:${top}%;left:${left}%;animation-delay:${i * -1.1}s`}>{c}</i>)}
+  </div>
+  <div class="hero-inner">
+    <p class="hero-badge"><span aria-hidden="true">✨</span> Free · No signup · 3 to 7 letters</p>
+    <h1 id="hero-title">{len} Letter Word <span class="hl">Finder</span></h1>
+    <p class="hero-intro">{intro}</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="/wordle">▶ Play today’s Wordle</a>
+      <a class="btn btn-ghost btn-lg" href="/wordle-solver">Wordle Solver</a>
+      <a class="btn btn-ghost btn-lg" href="/word-unscrambler">Unscramble letters</a>
+    </div>
+    <ul class="hero-stats" aria-label="Site highlights">
+      <li><b>{fmt(count)}</b><span>{len} letter words</span></li>
+      <li><b>A–Z</b><span>start &amp; end lists</span></li>
+      <li><b>3</b><span>playable games</span></li>
+      <li><b>0</b><span>cost, forever</span></li>
+    </ul>
+  </div>
+</section>

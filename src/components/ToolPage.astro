@@ -9,7 +9,6 @@ interface Props { page: keyof typeof TOOL_PAGES; mode: 'unscramble' | 'anagram' 
 const { page, mode } = Astro.props;
 const info = TOOL_PAGES[page] as any;
 const dictionaries = dictionariesFor(5);
-const og = `https://5letter-words.io/data/image/game/${page}/${page}.png`;
 const body: Record<string, string[]> = {
   'word-unscrambler': [
     'A word unscrambler takes the letters you have and shows every word they can spell. Type your tiles — use ? for a blank — and results are grouped by length with the highest-scoring words first.',
@@ -25,7 +24,7 @@ const body: Record<string, string[]> = {
   ],
 };
 ---
-<BaseLayout title={info.title} description={info.description} image={og}>
+<BaseLayout title={info.seoTitle ?? info.title} crumb={info.title} description={info.description}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: info.faq.map((f: any) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) })} />
   </Fragment>

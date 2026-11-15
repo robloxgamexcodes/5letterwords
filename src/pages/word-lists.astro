@@ -4,7 +4,7 @@ import { ALPHABET, LENGTHS, lengthPath, listPath } from '../lib/site';
 import { listCount, totalWords, wordsWhere, fmt } from '../lib/words';
 const groups = [['kind-start', 'Starting with', 'start'], ['kind-end', 'Ending in', 'end'], ['kind-contain', 'Containing', 'contain']] as const;
 ---
-<BaseLayout title="Word Lists: Every Length, Every Letter" description={`Browse 3 to 7 letter words by first letter, last letter or any letter they contain. ${fmt(listCount())} lists covering the full ${fmt(totalWords)} word dictionary.`} image="https://5letter-words.io/data/image/options/5letter-words.io1.png">
+<BaseLayout title="Word Lists: 3 to 7 Letter Words by Letter" crumb="Word Lists" description={`Browse 3 to 7 letter words by first letter, last letter or any letter they contain. ${fmt(listCount())} lists covering the full ${fmt(totalWords)} word dictionary.`}>
   <div class="container page">
     <header class="page-head">
       <h1>Word Lists</h1>

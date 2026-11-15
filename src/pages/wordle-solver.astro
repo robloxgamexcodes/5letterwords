@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FinderBlock from '../components/FinderBlock.astro';
 import BrowseLists from '../components/BrowseLists.astro';
+import WordleHelper from '../components/game/WordleHelper';
 import { MORE_TOOLS } from '../lib/site';
 import { TOOL_PAGES } from '../lib/copy';
 import { dictionariesFor, fmt, getData } from '../lib/words';
@@ -14,12 +15,14 @@ const description = has
   ? `Map your board onto the three rows and read off what is still possible. Below the solver is the full list of ${fmt(n)} words Wordle picks its answers from.`
   : `Map your board onto the three rows and read off what is still possible. Below the solver is the full list of ${fmt(n)} five-letter words.`;
 ---
-<BaseLayout title="Wordle Solver" description={description} image="https://5letter-words.io/data/image/game/wordle-solver/wordle-solver.png">
+<BaseLayout title="Wordle Solver: Find Every Possible Answer from Your Clues" crumb="Wordle Solver" description={description}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: info.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) })} />
   </Fragment>
   <div class="container page">
     <header class="page-head"><h1>Wordle Solver</h1><p>{description}</p></header>
+    <WordleHelper client:load />
+    <h2 class="section-title">Prefer filters? Use the full solver</h2>
     <FinderBlock len={5} dictionary={dictionary} statusLabel="All words" pageSize={72} />
     <section class="more-tools" aria-labelledby="more-tools-title">
       <h2 id="more-tools-title">More Word Tools</h2>

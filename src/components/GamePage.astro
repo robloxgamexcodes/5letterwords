@@ -1,12 +1,27 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type { Game } from '../lib/games';
+import WordGame from './game/WordGame';
+import CrosswordSolver from './finder/CrosswordSolver';
+import Unscrambler from './finder/Unscrambler';
+import { dictionariesFor } from '../lib/words';
 interface Props { game: Game; }
 const { game } = Astro.props;
+// Games we ship ourselves (no third-party embed needed).
+const PLAYABLE: Record<string, { boards: 1 | 2 | 4; max: number }> = { wordle: { boards: 1, max: 6 }, dordle: { boards: 2, max: 7 }, quordle: { boards: 4, max: 9 } };
+const play = PLAYABLE[game.slug];
+const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' ? 'scrabble' : null;
 ---
 <BaseLayout title={game.title} description={game.description}>
   <div class="container page game-page" data-game={game.slug}>
     <div class="game-card card">
+      {tool ? (
+        <div class="game-live game-tool">
+          {tool === 'crossword' ? <CrosswordSolver client:load /> : <Unscrambler client:load mode="unscramble" dictionaries={dictionariesFor(5)} />}
+        </div>
+      ) : play ? (
+        <div class="game-live"><WordGame client:only="react" slug={game.slug} boards={play.boards} maxGuesses={play.max} title={game.title} /></div>
+      ) : (
       <div class="game-frame" data-frame data-embed={game.embedUrl}>
         <div class="game-cover">
           <div class="game-badge" aria-hidden="true">{game.title.slice(0, 1)}</div>
@@ -15,6 +30,7 @@ const { game } = Astro.props;
           <p class="game-note" data-note hidden>The game player is not configured yet. Set <code>embedUrl</code> for “{game.title}” in <code>src/lib/games.ts</code>.</p>
         </div>
       </div>
+      )}
       <div class="game-bar">
         <h1>{game.title}</h1>
         <div class="game-actions">
@@ -80,11 +96,11 @@ const { game } = Astro.props;
   if (root) {
     const q = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
     const slug = root.dataset.game!;
-    const frame = q('[data-frame]');
+    const frame = root.querySelector<HTMLElement>('[data-frame]');
 
-    q('[data-play]').addEventListener('click', () => {
-      const url = frame.dataset.embed;
-      if (!url) { q('[data-note]').hidden = false; return; }
+    root.querySelector('[data-play]')?.addEventListener('click', () => {
+      const url = frame?.dataset.embed;
+      if (!url || !frame) { q('[data-note]').hidden = false; return; }
       const iframe = document.createElement('iframe');
       iframe.src = url; iframe.title = 'Game'; iframe.allow = 'fullscreen; autoplay'; iframe.loading = 'lazy';
       frame.replaceChildren(iframe);
@@ -106,7 +122,7 @@ const { game } = Astro.props;
     wire('[data-dislike]', 'dislike', '[data-like]');
     wire('[data-add]', 'add');
 
-    q('[data-fullscreen]').addEventListener('click', () => frame.requestFullscreen?.());
+    q('[data-fullscreen]').addEventListener('click', () => (frame ?? root.querySelector<HTMLElement>('.game-card'))?.requestFullscreen?.());
     const share = q<HTMLDialogElement>('[data-share-modal]');
     q('[data-share]').addEventListener('click', () => { q<HTMLInputElement>('[data-share-url]').value = location.href; share.showModal(); });
     q('[data-copy]').addEventListener('click', async (e) => {

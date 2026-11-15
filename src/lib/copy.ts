@@ -3,18 +3,18 @@ import { fmt } from './words';
 const NUM = ['', '', '', 'three', 'four', 'five', 'six', 'seven'];
 
 export const finderIntro = (len: number, count: number) =>
-  `Search all ${fmt(count)} ${NUM[len]}-letter words. Lock in the letters you know, rule out the ones you do not, and read off what is left.`;
+  `A free ${len} letter word finder with ${fmt(count)} ${NUM[len]}-letter words. Enter what your puzzle has shown you - letters in place, letters out of place, letters ruled out - and get the words that still fit.`;
 
 export const finderMeta = (len: number) => ({
-  title: `${len} Letter Words Finder for Wordle, Scrabble & More`,
-  description: `Find answers faster with ${len} Letter Words, a smart finder tool for word puzzles. Filter letters to refine results and solve every challenge with ease.`,
+  title: `${len} Letter Word Finder: Solve & Unscramble ${len} Letter Words`,
+  description: `Free ${len} letter word finder and words finder for Wordle, Scrabble and crosswords. Filter by position, included and excluded letters, prefix or suffix to list every match.`,
 });
 
 export const finderFaq = (len: number, count: number) => [
-  { q: `How many ${len} letter words are there?`, a: `The dictionary behind this finder holds ${fmt(count)} ${NUM[len]}-letter words. Individual games accept different subsets, so use the Dictionary filter when a game has its own list.` },
-  { q: `How do I use the ${len} letter word finder?`, a: `Type any letter whose slot you already know into the Right spot row. Letters you know are in the word but cannot place go into Wrong spot. Dead letters go into Not in the word. Press Search and every matching ${len} letter word is listed.` },
-  { q: `Can I use this word finder for Wordle?`, a: `Yes. Map your Wordle board onto the three rows: green tiles go in Right spot, yellow tiles in Wrong spot, grey tiles in Not in the word. What is left is every word still in play — the finder never reveals the answer for you.` },
-  { q: 'What if the same letter appears twice?', a: 'Open Display options and switch on Count repeats, then type that letter in both Right spot and Wrong spot. With it off the two entries are treated as one single letter, which is what you want most of the time.' },
+  { q: `How many ${len} letter words are in this finder?`, a: `The word list behind this ${len} letter word finder has ${fmt(count)} entries. Games differ in which words they accept, so check a result against your own game before you play it.` },
+  { q: `How do I find ${len} letter words with specific letters?`, a: `Put letters whose position you know in the Right spot row, letters that belong elsewhere in Wrong spot, and letters you have eliminated in Not in the word. Search, and the list shrinks to the ${len} letter words that satisfy every clue.` },
+  { q: 'Is this a Wordle helper?', a: 'It works as one. Copy the colours from your Wordle board into the three rows - green, yellow, grey - and you will see the words still possible. It narrows the field without naming the answer.' },
+  { q: 'How are repeated letters handled?', a: 'By default a letter listed twice is treated as a single required letter. Turn on Count repeats in Display options when the word really contains that letter two times.' },
 ];
 
 /** Long-form SEO section for a finder page (original copy). */
@@ -74,15 +74,16 @@ export const TOOL_PAGES = {
     title: 'Wordle Solver',
     h1: 'Wordle Solver',
     faq: [
-      { q: 'How do I use the Wordle solver?', a: 'Copy your board into the three rows. Green tiles go in Right spot, in the slot they occupy. Yellow tiles go in Wrong spot. Grey tiles go in Not in the word. Press Search and you get every 5 letter word still consistent with what you know.' },
+      { q: 'How do I use this Wordle solver?', a: 'Enter each green tile in its own slot under Right spot, yellow tiles under Wrong spot and grey tiles under Not in the word. Search to see every 5 letter word that matches the whole board.' },
       { q: 'Does it tell me the answer?', a: 'No, and that is deliberate. It narrows the field to the words that are still possible and leaves the choice to you, so you get a hint without having the puzzle spoiled.' },
       { q: 'What is the difference between Wordle answers and Wordle guesses?', a: 'Wordle accepts a much larger list of words as guesses than it ever picks as an answer. Set the dictionary to Wordle answers only to see the shortlist that can actually be the word of the day; leave it on Wordle guesses to check whether a word will be accepted at all.' },
-      { q: 'What if a letter appears twice?', a: 'Open Display options and switch on Count repeats, then enter that letter in both Right spot and Wrong spot. With it off the two entries are read as the same single letter, which is the right behaviour most of the time.' },
+      { q: 'What if a letter shows up twice in the answer?', a: 'Switch on Count repeats under Display options and enter the letter in both Right spot and Wrong spot. Leave it off and the solver treats the two entries as one letter.' },
       { q: 'What is a good Wordle starting word?', a: 'Words that spend all five slots on common letters do the most work: CRANE, SLATE, ADIEU and ROATE are popular openers. Any of them tends to light up a few tiles, which is enough to cut thousands of candidates down to a handful.' },
     ],
   },
   'word-unscrambler': {
     title: 'Word Unscrambler',
+    seoTitle: 'Word Unscrambler: Unscramble Letters into Words',
     h1: 'Word Unscrambler',
     description: 'Type your letters and find every word you can make from them. Filter by start, end or pattern and score each result for Scrabble or Words With Friends.',
     faq: [
@@ -95,6 +96,7 @@ export const TOOL_PAGES = {
   },
   'anagram-solver': {
     title: 'Anagram Solver',
+    seoTitle: 'Anagram Solver: Words Using Every Letter',
     h1: 'Anagram Solver',
     description: 'Find every anagram of your letters. This solver only returns words that use all of the letters you enter.',
     faq: [
@@ -106,6 +108,7 @@ export const TOOL_PAGES = {
   },
   'word-scramble': {
     title: 'Word Scramble Solver',
+    seoTitle: 'Word Scramble Solver: Unjumble a Puzzle Fast',
     h1: 'Word Scramble Solver',
     description: 'Unjumble a word scramble puzzle. Enter the scrambled letters and get every possible answer, longest word first.',
     faq: [

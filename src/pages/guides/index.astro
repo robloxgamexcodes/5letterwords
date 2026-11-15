@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { GUIDES } from '../../lib/guides';
+---
+<BaseLayout title="Word Game Guides: Wordle, Scrabble & Anagram Tips" description="Data-backed guides for word games: best Wordle starting words, strategy tips, highest-scoring Scrabble words and how to unscramble letters." crumb="Guides">
+  <div class="container page">
+    <header class="page-head"><h1>Word Game Guides</h1><p>Short, practical guides built from our own word lists: what to open with, what to play next and how to score more.</p></header>
+    <ul class="guide-grid">
+      {GUIDES.map((g, i) => (
+        <li><a class="card guide-card" href={`/guides/${g.slug}`}>
+          <span class="guide-num">{String(i + 1).padStart(2, '0')}</span>
+          <strong>{g.title}</strong><span>{g.blurb}</span><em>{g.minutes} min read →</em>
+        </a></li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

@@ -1,8 +1,9 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
+import { SITE } from '../lib/site';
 ---
 <LegalPage title="Contact Us" description="Contact the 5 Letter Words team with questions, feedback or word-list corrections.">
-  <p>We read every message. Email us at <a href="mailto:contact@5letter-words.io">contact@5letter-words.io</a> and we will reply as soon as we can.</p>
+  <p>We read every message. Email us at <a href={`mailto:${SITE.email}`}>{SITE.email}</a> and we will reply as soon as we can.</p>
   <h2>What to include</h2>
   <ul>
     <li>The page address you were using.</li>

@@ -2,6 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FinderBlock from './FinderBlock.astro';
 import BrowseLists from './BrowseLists.astro';
+import Hero from './Hero.astro';
+import InsightBlocks from './InsightBlocks.astro';
+import DailyStrip from './game/DailyStrip';
 import { countFor } from '../lib/words';
 import { finderArticle, finderFaq, finderIntro, finderMeta } from '../lib/copy';
 import { SITE } from '../lib/site';
@@ -20,13 +23,12 @@ const url = len === 5 ? SITE.url : `${SITE.url}/${len}-letter-word-finder`;
     <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) })} />
   </Fragment>
   <div class="container page">
-    <header class="page-head">
-      <h1>{len} Letter Words</h1>
-      <p>{finderIntro(len, count)}</p>
-    </header>
+    <Hero len={len} count={count} intro={finderIntro(len, count)} />
     <FinderBlock len={len} statusLabel="Sample" pageSize={80} />
+    <DailyStrip client:only="react" />
 
     <div class="blocks">
+      <InsightBlocks len={len} />
       <section class="card block" aria-label={article.h2}>
         <h2>{article.h2}</h2>
         <p>{article.intro}</p>

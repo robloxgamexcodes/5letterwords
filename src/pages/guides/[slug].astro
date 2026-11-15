@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { GUIDES, guideBySlug } from '../../lib/guides';
+import { SITE } from '../../lib/site';
+
+export function getStaticPaths() { return GUIDES.map((g) => ({ params: { slug: g.slug } })); }
+const guide = guideBySlug(Astro.params.slug!)!;
+const related = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 3);
+---
+<BaseLayout title={`${guide.title}: Data-Backed Guide`} description={guide.description} crumb={guide.title}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: guide.h1, description: guide.description, mainEntityOfPage: `${SITE.url}/guides/${guide.slug}`, publisher: { '@type': 'Organization', name: SITE.name } })} />
+  </Fragment>
+  <div class="container page narrow">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides">Guides</a></nav>
+    <header class="page-head"><p class="eyebrow">{guide.minutes} min read</p><h1>{guide.h1}</h1><p>{guide.blurb}</p></header>
+    <article class="prose guide">
+      {guide.blocks.map((b) => {
+        if (b.t === 'p') return <p set:html={b.x} />;
+        if (b.t === 'h2') return <h2>{b.x}</h2>;
+        if (b.t === 'ul') return <ul>{b.x.map((i) => <li set:html={i} />)}</ul>;
+        if (b.t === 'chips') return <ul class={`chips ${b.lg ? 'chips-lg' : ''}`}>{b.x.map((c) => <li><span>{c.w}</span>{c.n !== undefined && <small>{c.n}</small>}</li>)}</ul>;
+        return <div class="table-wrap"><table><thead><tr>{b.head.map((h) => <th>{h}</th>)}</tr></thead><tbody>{b.rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody></table></div>;
+      })}
+    </article>
+    <section class="guide-cta card">
+      <div><h2>Put it into practice</h2><p>Play today’s puzzle or let the solver do the heavy lifting.</p></div>
+      <div class="guide-cta-btns"><a class="btn btn-primary" href="/wordle">Play Wordle</a><a class="btn btn-ghost" href="/wordle-solver">Wordle Solver</a></div>
+    </section>
+    <section class="related"><h2>More guides</h2>
+      <ul class="tool-cards tool-cards-wide">{related.map((g) => <li><a href={`/guides/${g.slug}`}><strong>{g.title}</strong><span>{g.blurb}</span></a></li>)}</ul>
+    </section>
+  </div>
+</BaseLayout>

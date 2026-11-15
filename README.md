@@ -53,3 +53,18 @@ Dark mode and Scrabble scores are also in the footer; every display option persi
 `vercel.json` uses `cleanUrls` so `/wordle.html` is served at `/wordle`. (The original starter combined `routes` with
 `headers`, which Vercel rejects — that's been removed.) The CSP allows common ad/analytics origins and `frame-src https:`
 for game embeds; tighten it to the exact providers you use.
+
+
+## Setup notes (added)
+
+- Set `PUBLIC_SITE_URL` (see `.env.example`) to your own domain before building. It drives canonicals, OG tags, the sitemap and `robots.txt`.
+- `npm run build` works without `data-sources/`; it then reuses the committed `src/data/generated/*.json`. Add `data-sources/enable1.txt` (and optional dictionary files) to regenerate.
+- List pages with fewer than 5 words are `noindex` and excluded from the sitemap (see `astro.config.mjs`).
+
+## Engagement features (added)
+
+- **Games:** `/wordle`, `/dordle`, `/quordle` are playable (daily + unlimited, streaks, stats, share). Engine in `src/lib/game.ts`, UI in `src/components/game/WordGame.tsx`. Answers come from `src/data/generated/answers-5.json` (common words); every ENABLE word is a valid guess.
+- **Wordle Solver:** interactive tile board with ranked next-guess suggestions (`WordleHelper.tsx`) above the filter solver.
+- **Crossword Solver** (`/crossword`) and **Scrabble Word Finder** (`/scrabble`) are now working tools.
+- **Home/finder pages:** hero, daily strip (today's Wordle, word of the day, more games), and data-driven "By the numbers" blocks (`InsightBlocks.astro`).
+- **Guides:** `/guides` + 5 data-backed articles (`src/lib/guides.ts`), plus `/sources-methodology` and an HTML `/sitemap`.

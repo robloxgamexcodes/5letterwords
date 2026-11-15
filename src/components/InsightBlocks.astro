@@ -1,0 +1,75 @@
+---
+import { getWords, fmt } from '../lib/words';
+import { listPath } from '../lib/site';
+import { score } from '../lib/scoring';
+import { ANSWERS } from '../lib/game';
+
+interface Props { len: number; }
+const { len } = Astro.props;
+const words = getWords(len);
+
+// Highest-scoring words (Scrabble tile values)
+const top = [...words].sort((a, b) => score(b) - score(a) || a.localeCompare(b)).slice(0, 18);
+
+// Letter frequency: share of words containing each letter
+const has = new Map<string, number>();
+for (const w of words) for (const c of new Set(w)) has.set(c, (has.get(c) || 0) + 1);
+const letters = [...has].sort((a, b) => b[1] - a[1]);
+const topLetters = letters.slice(0, 10).map(([c, n]) => ({ c, pct: Math.round((n / words.length) * 100) }));
+const maxPct = topLetters[0].pct;
+
+// Best opening words (5 letters only): five different letters, ranked by how many words share them; common words only.
+let starters: string[] = [];
+if (len === 5) {
+  const seen = new Set<string>();
+  starters = ANSWERS
+    .filter((w) => new Set(w).size === 5)
+    .map((w) => ({ w, s: [...w].reduce((t, c) => t + (has.get(c) || 0), 0) }))
+    .sort((a, b) => b.s - a.s)
+    .filter(({ w }) => { const k = [...w].sort().join(''); if (seen.has(k)) return false; seen.add(k); return true; })
+    .slice(0, 8).map((x) => x.w);
+}
+
+// Popular searches: the biggest start/end pages (never thin pages)
+const prefixes = new Map<string, number>();
+const suffixes = new Map<string, number>();
+for (const w of words) { prefixes.set(w.slice(0, 2), (prefixes.get(w.slice(0, 2)) || 0) + 1); suffixes.set(w.slice(-1), (suffixes.get(w.slice(-1)) || 0) + 1); }
+const popStart = [...prefixes].filter(([, n]) => n >= 8).sort((a, b) => b[1] - a[1]).slice(0, 10);
+const popEnd = [...suffixes].filter(([, n]) => n >= 8).sort((a, b) => b[1] - a[1]).slice(0, 6);
+---
+<section class="card block insights" aria-labelledby={`ins-${len}`}>
+  <p class="eyebrow">By the numbers</p>
+  <h2 id={`ins-${len}`}>{len} letter words: letters, scores and starters</h2>
+  <div class="ins-grid">
+    <div class="ins-col">
+      <h3>Most common letters</h3>
+      <p class="ins-note">Share of all {fmt(words.length)} {len} letter words that contain each letter.</p>
+      <ul class="bars">
+        {topLetters.map(({ c, pct }) => (
+          <li><b>{c.toUpperCase()}</b><span class="bar"><i style={`width:${Math.max(8, (pct / maxPct) * 100)}%`}></i></span><em>{pct}%</em></li>
+        ))}
+      </ul>
+    </div>
+    <div class="ins-col">
+      <h3>Highest-scoring {len} letter words</h3>
+      <p class="ins-note">Scrabble tile values, best first.</p>
+      <ul class="chips">
+        {top.map((w) => <li><span>{w}</span><small>{score(w)}</small></li>)}
+      </ul>
+    </div>
+  </div>
+  {starters.length > 0 && (
+    <div class="ins-row">
+      <h3>Best starting words for Wordle</h3>
+      <p class="ins-note">Five different letters that appear in the most words. Open with one of these, then use the <a href="/wordle-solver">Wordle Solver</a>.</p>
+      <ul class="chips chips-lg">{starters.map((w) => <li><span>{w}</span></li>)}</ul>
+    </div>
+  )}
+  <div class="ins-row">
+    <h3>Popular {len} letter word searches</h3>
+    <ul class="pill-links">
+      {popStart.map(([p, n]) => <li><a href={listPath(len, 'start', p)}>{len} letter words starting with {p.toUpperCase()}<small>{n}</small></a></li>)}
+      {popEnd.map(([s, n]) => <li><a href={listPath(len, 'end', s)}>{len} letter words ending in {s.toUpperCase()}<small>{n}</small></a></li>)}
+    </ul>
+  </div>
+</section>

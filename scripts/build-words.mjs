@@ -8,6 +8,13 @@ const src = join(root, 'data-sources');
 const out = join(root, 'src/data/generated');
 mkdirSync(out, { recursive: true });
 
+// The raw word lists (data-sources/*.txt) are not committed. If they are missing, keep the
+// already-generated JSON in src/data/generated so `npm run build` still works.
+if (!existsSync(join(src, 'enable1.txt'))) {
+  console.log('[build-words] data-sources/enable1.txt not found - using existing src/data/generated files');
+  process.exit(0);
+}
+
 const LENGTHS = [3, 4, 5, 6, 7];
 const BASE = 'enable1.txt';
 const DICTS = { nwl: 'nwl.txt', collins: 'collins.txt', wwf: 'wwf.txt', 'wordle-guesses': 'wordle-guesses.txt', 'wordle-answers': 'wordle-answers.txt' };

@@ -28,7 +28,7 @@ const title = props.type === 'list' ? `${listHeading(props.len, kind, props.valu
 {props.type === 'finder' && <FinderPage len={props.len} />}
 {props.type === 'game' && game && <GamePage game={game} />}
 {props.type === 'list' && (
-  <BaseLayout title={title} description={listMetaDesc(props.len, kind, props.value, count)}>
+  <BaseLayout title={title} description={listMetaDesc(props.len, kind, props.value, count)} crumb={listHeading(props.len, kind, props.value)} noindex={count < 5}>
     <div class="container page">
       <header class="page-head">
         <h1>{listHeading(props.len, kind, props.value)}</h1>

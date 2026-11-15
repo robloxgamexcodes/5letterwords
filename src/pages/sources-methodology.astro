@@ -1,0 +1,22 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { fmt, totalWords, countFor } from '../lib/words';
+import { ANSWERS } from '../lib/game';
+---
+<LegalPage title="Sources & Methodology" description="Where our word lists, definitions and scores come from, and how the tools and games work.">
+  <p>This page explains exactly where the data behind the finders, solvers and games comes from, so you can judge how far to trust a result.</p>
+  <h2>Word lists</h2>
+  <p>Results come from the public-domain ENABLE word list, cut into 3, 4, 5, 6 and 7 letter sets. That gives {fmt(totalWords)} words in total, including {fmt(countFor(5))} five-letter words. Different games accept different dictionaries, so a word that appears here may not be playable in your game, and the reverse is also true. When it matters, check the word in your own game.</p>
+  <h2>Games</h2>
+  <p>Wordle, Dordle and Quordle on this site are our own versions. Any word in the list above is accepted as a guess. Answers are chosen from {fmt(ANSWERS.length)} common five-letter words, picked by real-world word frequency, with plurals and rare words removed. The daily puzzle changes at midnight in your time zone. Your streaks and statistics stay in your browser.</p>
+  <h2>Scores</h2>
+  <p>Point values use the standard Scrabble and Words With Friends tile values and do not include premium squares.</p>
+  <h2>Definitions</h2>
+  <p>Definitions are loaded live from Wiktionary when you open a word. We do not edit them.</p>
+  <h2>Suggestions and rankings</h2>
+  <p>The Wordle helper ranks the remaining words by how many other candidates share their letters and positions, and shows common words first. It is a guide, not a guarantee.</p>
+  <h2>Independence</h2>
+  <p>We are not affiliated with or endorsed by The New York Times, Hasbro, Mattel, Zynga or the makers of any game named on this site.</p>
+  <h2>Found a mistake?</h2>
+  <p>Tell us on the <a href="/contact-us">contact page</a>.</p>
+</LegalPage>

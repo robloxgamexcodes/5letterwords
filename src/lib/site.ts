@@ -1,4 +1,13 @@
-export const SITE = { name: '5 Letter Words', url: 'https://5letter-words.io', year: new Date().getFullYear() };
+// Set PUBLIC_SITE_URL (e.g. https://your-domain.com) in .env / the host's env vars. Used for canonicals, OG tags, sitemap and robots.txt.
+const rawUrl = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://example.com';
+const siteUrl = rawUrl.replace(/\/+$/, '');
+export const SITE = {
+  name: '5 Letter Words',
+  url: siteUrl,
+  host: new URL(siteUrl).hostname,
+  email: `contact@${new URL(siteUrl).hostname}`,
+  year: new Date().getFullYear(),
+};
 export const LENGTHS = [3, 4, 5, 6, 7] as const;
 export type Len = (typeof LENGTHS)[number];
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -16,6 +25,8 @@ export const NAV = [
   { label: '5 Letter Words', href: lengthPath(5) },
   { label: '7 Letter Words', href: lengthPath(7) },
   { label: '6 Letter Words', href: lengthPath(6) },
+  { label: 'Guides', href: '/guides' },
+  { label: '▶ Play', href: '/wordle', cta: true },
 ];
 
 export const TOOL_CARDS = [
@@ -32,8 +43,9 @@ export const GAME_LINKS = [
   { label: 'Anagram Solver', href: '/anagram-solver' },
   { label: 'Wordle Solver', href: '/wordle-solver' },
   { label: 'Quordle', href: '/quordle' },
-  { label: 'Crossword', href: '/crossword' },
-  { label: 'Scrabble', href: '/scrabble' },
+  { label: 'Dordle', href: '/dordle' },
+  { label: 'Crossword Solver', href: '/crossword' },
+  { label: 'Scrabble Word Finder', href: '/scrabble' },
   { label: 'Wordle', href: '/wordle' },
 ];
 
@@ -54,6 +66,25 @@ export const FOOTER_COLUMNS = [
       { label: 'Wordle Solver', href: '/wordle-solver' },
       { label: 'Anagram Solver', href: '/anagram-solver' },
       { label: 'Word Lists', href: '/word-lists' },
+      { label: 'Crossword Solver', href: '/crossword' },
+      { label: 'Scrabble Word Finder', href: '/scrabble' },
+    ],
+  },
+  {
+    title: 'Play',
+    links: [
+      { label: 'Wordle', href: '/wordle' },
+      { label: 'Dordle', href: '/dordle' },
+      { label: 'Quordle', href: '/quordle' },
+    ],
+  },
+  {
+    title: 'Learn',
+    links: [
+      { label: 'Guides', href: '/guides' },
+      { label: 'Best Starting Words', href: '/guides/best-wordle-starting-words' },
+      { label: 'Sources & Methodology', href: '/sources-methodology' },
+      { label: 'Site Map', href: '/sitemap' },
     ],
   },
   {
@@ -67,5 +98,5 @@ export const FOOTER_COLUMNS = [
     ],
   },
 ];
-export const DEFAULT_OG = 'https://5letter-words.io/data/image/options/5letter-words.io1.png';
-export const TWITTER_IMG = 'https://5letter-words.io/images/5-letter-words-twitter-share-v6.png';
+export const DEFAULT_OG = `${siteUrl}/og-default.png`;
+export const TWITTER_IMG = DEFAULT_OG;

@@ -6,12 +6,20 @@ import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
-import { DEFAULT_OG, SITE, TWITTER_IMG } from '../lib/site';
+import { DEFAULT_OG, SITE, TWITTER_IMG, lengthPath } from '../lib/site';
 
-interface Props { title: string; description: string; image?: string; }
-const { title, description, image = DEFAULT_OG } = Astro.props;
+interface Props { title: string; description: string; image?: string; noindex?: boolean; crumb?: string; }
+const { title, description, image = DEFAULT_OG, noindex = false, crumb } = Astro.props;
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/(index)?$/, '');
 const canonical = `${SITE.url}${path}`;
+// BreadcrumbList: Home > (length finder, for list pages) > this page
+const items: { name: string; url: string }[] = [{ name: 'Home', url: SITE.url }];
+const listMatch = path.match(/^\/(\d)-letter-words-/);
+if (listMatch) items.push({ name: `${listMatch[1]} Letter Words`, url: `${SITE.url}${lengthPath(Number(listMatch[1])) === '/' ? '' : lengthPath(Number(listMatch[1]))}` });
+if (path) items.push({ name: crumb ?? title.split(':')[0], url: canonical });
+const breadcrumbs = items.length > 1
+  ? { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, item: it.url })) }
+  : null;
 ---
 <!doctype html>
 <html lang="en" data-theme="light" data-contrast="normal">
@@ -21,7 +29,7 @@ const canonical = `${SITE.url}${path}`;
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="robots" content="index,follow" />
+    <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'} />
     <meta name="HandheldFriendly" content="true" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -49,6 +57,7 @@ const canonical = `${SITE.url}${path}`;
         r.dataset.contrast = s.contrast ? 'high' : 'normal';
       } catch (e) {}
     </script>
+    {breadcrumbs && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbs)} />}
     <slot name="head" />
   </head>
   <body>

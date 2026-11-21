@@ -46,7 +46,10 @@ const title = props.type === 'list' ? `${listHeading(props.len, kind, props.valu
         len={props.len}
         currentStart={kind === 'start' && props.value.length === 1 ? props.value : undefined}
         currentEnd={kind === 'end' ? props.value : undefined}
+        currentContain={kind === 'contain' ? props.value : undefined}
         prefixLetter={kind === 'start' ? props.value[0] : undefined}
+        kind={kind}
+        value={props.value}
       />
       </div>
     </div>

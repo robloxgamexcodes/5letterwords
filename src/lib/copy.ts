@@ -7,7 +7,7 @@ export const finderIntro = (len: number, count: number) =>
 
 export const finderMeta = (len: number) => ({
   title: `${len} Letter Word Finder: Solve & Unscramble ${len} Letter Words`,
-  description: `Free ${len} letter word finder and words finder for Wordle, Scrabble and crosswords. Filter by position, included and excluded letters, prefix or suffix to list every match.`,
+  description: `Free ${len} letter word finder for Wordle, Scrabble and crosswords. Filter by letter position, included or excluded letters, prefix or suffix.`,
 });
 
 export const finderFaq = (len: number, count: number) => [
@@ -98,7 +98,7 @@ export const TOOL_PAGES = {
     title: 'Anagram Solver',
     seoTitle: 'Anagram Solver: Words Using Every Letter',
     h1: 'Anagram Solver',
-    description: 'Find every anagram of your letters. This solver only returns words that use all of the letters you enter.',
+    description: 'Find every anagram of your letters. This free anagram solver only returns words that use all of the letters you enter, with Scrabble scores.',
     faq: [
       { q: 'What is an anagram solver?', a: 'It lists every word that can be spelled using all of the letters you enter, each exactly once — for example LISTEN, SILENT, TINSEL and ENLIST.' },
       { q: 'How is it different from the word unscrambler?', a: 'The unscrambler shows words of every length that can be made from some of your letters. The anagram solver only returns words that use every letter.' },

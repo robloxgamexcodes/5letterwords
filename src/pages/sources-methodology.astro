@@ -3,7 +3,7 @@ import LegalPage from '../components/LegalPage.astro';
 import { fmt, totalWords, countFor } from '../lib/words';
 import { ANSWERS } from '../lib/game';
 ---
-<LegalPage title="Sources & Methodology" description="Where our word lists, definitions and scores come from, and how the tools and games work.">
+<LegalPage title="Sources & Methodology" seoTitle="Sources & Methodology | 5 Letter Words Data Explained" description="Where our word lists, definitions and Scrabble scores come from, which dictionary we use, and how the finders, solvers and games work.">
   <p>This page explains exactly where the data behind the finders, solvers and games comes from, so you can judge how far to trust a result.</p>
   <h2>Word lists</h2>
   <p>Results come from the public-domain ENABLE word list, cut into 3, 4, 5, 6 and 7 letter sets. That gives {fmt(totalWords)} words in total, including {fmt(countFor(5))} five-letter words. Different games accept different dictionaries, so a word that appears here may not be playable in your game, and the reverse is also true. When it matters, check the word in your own game.</p>

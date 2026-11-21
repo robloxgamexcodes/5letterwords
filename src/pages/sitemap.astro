@@ -3,9 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { GUIDES } from '../lib/guides';
 import { GAMES } from '../lib/games';
 import { ALPHABET, LENGTHS, lengthPath, listPath } from '../lib/site';
-import { wordsWhere } from '../lib/words';
+import { hasList } from '../lib/words';
 ---
-<BaseLayout title="Site Map: All Word Finders, Tools, Games & Lists" description="Every page on the site: word finders for 3 to 7 letters, solvers, games, guides and A to Z word lists." crumb="Site Map">
+<BaseLayout title="Site Map: All Word Finders, Tools, Games & Lists" description="Every page on 5 Letter Words in one place: word finders for 3 to 7 letters, solvers, games, guides and A to Z word lists by letter." crumb="Site Map">
   <div class="container page narrow">
     <header class="page-head"><h1>Site Map</h1><p>Everything on the site, in one place.</p></header>
     <div class="blocks">
@@ -17,8 +17,9 @@ import { wordsWhere } from '../lib/words';
       <section class="card block"><h2>Guides</h2><ul><li><a href="/guides">All guides</a></li>{GUIDES.map((g) => <li><a href={`/guides/${g.slug}`}>{g.title}</a></li>)}</ul></section>
       {LENGTHS.map((n) => (
         <section class="card block"><h2>{n} letter words A to Z</h2>
-          <p><strong>Starting with:</strong> {ALPHABET.filter((l) => wordsWhere(n, 'start', l).length).map((l) => <a class="az" href={listPath(n, 'start', l)}>{l.toUpperCase()}</a>)}</p>
-          <p><strong>Ending in:</strong> {ALPHABET.filter((l) => wordsWhere(n, 'end', l).length).map((l) => <a class="az" href={listPath(n, 'end', l)}>{l.toUpperCase()}</a>)}</p>
+          <p><strong>Starting with:</strong> {ALPHABET.filter((l) => hasList(n, 'start', l)).map((l) => <a class="az" href={listPath(n, 'start', l)}>{l.toUpperCase()}</a>)}</p>
+          <p><strong>Ending in:</strong> {ALPHABET.filter((l) => hasList(n, 'end', l)).map((l) => <a class="az" href={listPath(n, 'end', l)}>{l.toUpperCase()}</a>)}</p>
+          <p><strong>Containing:</strong> {ALPHABET.filter((l) => hasList(n, 'contain', l)).map((l) => <a class="az" href={listPath(n, 'contain', l)}>{l.toUpperCase()}</a>)}</p>
         </section>
       ))}
       <section class="card block"><h2>About</h2><ul><li><a href="/sources-methodology">Sources &amp; Methodology</a></li><li><a href="/about-us">About Us</a></li><li><a href="/contact-us">Contact Us</a></li><li><a href="/privacy-policy">Privacy Policy</a></li><li><a href="/terms-of-service">Terms of Service</a></li><li><a href="/dmca">DMCA</a></li></ul></section>

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { ALPHABET, LENGTHS, lengthPath, listPath } from '../lib/site';
-import { listCount, totalWords, wordsWhere, fmt } from '../lib/words';
+import { listCount, totalWords, hasList, fmt } from '../lib/words';
 const groups = [['kind-start', 'Starting with', 'start'], ['kind-end', 'Ending in', 'end'], ['kind-contain', 'Containing', 'contain']] as const;
 ---
 <BaseLayout title="Word Lists: 3 to 7 Letter Words by Letter" crumb="Word Lists" description={`Browse 3 to 7 letter words by first letter, last letter or any letter they contain. ${fmt(listCount())} lists covering the full ${fmt(totalWords)} word dictionary.`}>
@@ -21,7 +21,7 @@ const groups = [['kind-start', 'Starting with', 'start'], ['kind-end', 'Ending i
           <>
             <h3>{label}</h3>
             <ul class="letter-grid">
-              {ALPHABET.filter((l) => wordsWhere(len, kind, l).length).map((l) => <li><a href={listPath(len, kind, l)}>{l.toUpperCase()}</a></li>)}
+              {ALPHABET.filter((l) => hasList(len, kind, l)).map((l) => <li><a href={listPath(len, kind, l)}>{l.toUpperCase()}</a></li>)}
             </ul>
           </>
         ))}

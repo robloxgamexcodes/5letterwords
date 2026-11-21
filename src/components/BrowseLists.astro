@@ -1,11 +1,15 @@
 ---
-import { ALPHABET, listPath } from '../lib/site';
-import { wordsWhere, prefixCounts } from '../lib/words';
-interface Props { len: number; currentStart?: string; currentEnd?: string; prefixLetter?: string; }
-const { len, currentStart, currentEnd, prefixLetter } = Astro.props;
-const starts = ALPHABET.filter((l) => wordsWhere(len, 'start', l).length);
-const ends = ALPHABET.filter((l) => wordsWhere(len, 'end', l).length);
+import { ALPHABET, LENGTHS, listPath, type ListKind } from '../lib/site';
+import { hasList, prefixCounts } from '../lib/words';
+interface Props { len: number; currentStart?: string; currentEnd?: string; currentContain?: string; prefixLetter?: string; kind?: ListKind; value?: string; }
+const { len, currentStart, currentEnd, currentContain, prefixLetter, kind, value } = Astro.props;
+const starts = ALPHABET.filter((l) => hasList(len, 'start', l));
+const ends = ALPHABET.filter((l) => hasList(len, 'end', l));
+const contains = ALPHABET.filter((l) => hasList(len, 'contain', l));
 const prefixes = prefixLetter ? prefixCounts(len, prefixLetter) : [];
+// Same list for the other word lengths (e.g. 4 / 6 / 7 letter words starting with CO), only where that page exists.
+const kindText = kind === 'start' ? 'starting with' : kind === 'end' ? 'ending in' : 'containing';
+const others = kind && value ? LENGTHS.filter((n) => n !== len && hasList(n, kind, value)) : [];
 ---
 <section class="browse card block" aria-labelledby="browse-title">
   <p class="eyebrow" id="browse-title">Browse {len} letter words</p>
@@ -21,12 +25,28 @@ const prefixes = prefixLetter ? prefixCounts(len, prefixLetter) : [];
       <li>{l === currentEnd ? <span class="current">{l.toUpperCase()}</span> : <a href={listPath(len, 'end', l)}>{l.toUpperCase()}</a>}</li>
     ))}
   </ul>
+  <h2>{len} letter words containing a letter</h2>
+  <ul class="letter-grid">
+    {contains.map((l) => (
+      <li>{l === currentContain ? <span class="current">{l.toUpperCase()}</span> : <a href={listPath(len, 'contain', l)}>{l.toUpperCase()}</a>}</li>
+    ))}
+  </ul>
   {prefixes.length > 0 && (
     <>
       <h2>{len} letter words starting {prefixLetter!.toUpperCase()} + one more letter</h2>
       <ul class="prefix-grid">
         {prefixes.map(({ prefix, n }) => (
           <li><a href={listPath(len, 'start', prefix)}>{prefix.toUpperCase()}<small>{n}</small></a></li>
+        ))}
+      </ul>
+    </>
+  )}
+  {others.length > 0 && (
+    <>
+      <h2>Other word lengths {kindText} {value!.toUpperCase()}</h2>
+      <ul class="prefix-grid">
+        {others.map((n) => (
+          <li><a href={listPath(n, kind!, value!)}>{n} letter words {kindText} {value!.toUpperCase()}</a></li>
         ))}
       </ul>
     </>

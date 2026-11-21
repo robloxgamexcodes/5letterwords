@@ -12,7 +12,7 @@ const PLAYABLE: Record<string, { boards: 1 | 2 | 4; max: number }> = { wordle: {
 const play = PLAYABLE[game.slug];
 const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' ? 'scrabble' : null;
 ---
-<BaseLayout title={game.title} description={game.description}>
+<BaseLayout title={game.seoTitle} crumb={game.title} description={game.description}>
   <div class="container page game-page" data-game={game.slug}>
     <div class="game-card card">
       {tool ? (

@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-interface Props { title: string; description: string; }
-const { title, description } = Astro.props;
+// `title` is the on-page H1; `seoTitle` is the (longer, branded) <title> tag.
+interface Props { title: string; seoTitle?: string; description: string; }
+const { title, seoTitle, description } = Astro.props;
 ---
-<BaseLayout title={title} description={description}>
+<BaseLayout title={seoTitle ?? title} crumb={title} description={description}>
   <div class="container page narrow">
     <header class="page-head"><h1>{title}</h1></header>
     <article class="prose legal"><slot /></article>

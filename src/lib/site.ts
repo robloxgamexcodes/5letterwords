@@ -1,5 +1,6 @@
-// Set PUBLIC_SITE_URL (e.g. https://your-domain.com) in .env / the host's env vars. Used for canonicals, OG tags, sitemap and robots.txt.
-const rawUrl = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://example.com';
+// PUBLIC_SITE_URL overrides the domain (set it in .env / the host's env vars). It falls back to the production domain so a missing
+// env var can never again publish canonicals pointing at example.com. Used for canonicals, OG tags, sitemap and robots.txt.
+const rawUrl = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://5letterwords.se';
 const siteUrl = rawUrl.replace(/\/+$/, '');
 export const SITE = {
   name: '5 Letter Words',

@@ -15,6 +15,8 @@ type Props = {
   pageSize: number;
   dictionaries: string[];
   defaultDictionary?: string;
+  /** A sample "letter run" pattern with a few real matches, e.g. { pattern: 'S_ARE', hits: ['spare', 'share'] } */
+  example?: { pattern: string; hits: string[] };
 };
 
 const HELP = {
@@ -55,7 +57,7 @@ function TileRow({ kind, count, values, onChange, label }: {
     <div className={`tile-row tile-row-${kind}`}>
       <div className="tile-row-head">
         <div>
-          <h3>{help.title}</h3>
+          <p className="tile-title">{help.title}</p>
           <p>{help.sub}</p>
         </div>
         <button type="button" className="info-btn" aria-expanded={helpOpen} aria-label={`About ${help.title}`} onClick={() => setHelpOpen((v) => !v)}>i</button>
@@ -98,7 +100,7 @@ function TileRow({ kind, count, values, onChange, label }: {
 }
 
 export default function WordFinder(props: Props) {
-  const { len, base = null, initialWords, initialCount, statusLabel, pageSize, dictionaries, defaultDictionary = 'all' } = props;
+  const { len, base = null, initialWords, initialCount, statusLabel, pageSize, dictionaries, defaultDictionary = 'all', example } = props;
 
   const [data, setData] = useState<LengthData | null>(null);
   const [loadError, setLoadError] = useState(false);
@@ -147,9 +149,11 @@ export default function WordFinder(props: Props) {
   const pool = useMemo(() => {
     if (!data) return null;
     const set = dictKey !== 'all' ? data.sets[dictKey] : null;
-    const out: string[] = [];
-    data.words.forEach((w, i) => { if ((!set || set.has(i)) && matchesBase(w, base)) out.push(w); });
-    return out;
+    const head: string[] = [];
+    const tail: string[] = [];
+    // Everyday words first, then the rest, so likely answers lead the list.
+    data.words.forEach((w, i) => { if ((!set || set.has(i)) && matchesBase(w, base)) (data.common.has(i) ? head : tail).push(w); });
+    return head.concat(tail);
   }, [data, dictKey, base]);
 
   const matches = useMemo(() => {
@@ -202,7 +206,7 @@ export default function WordFinder(props: Props) {
         <TileRow kind="dead" count={20} values={dead} onChange={setDead} label="Not in the word" />
 
         <div className="more-head">
-          <h3>More filters</h3>
+          <p className="more-title">More filters</p>
           <button type="button" className="link-btn" aria-expanded={moreOpen} onClick={() => setMoreOpen((v) => !v)}>{moreOpen ? 'Hide' : 'Show'}</button>
         </div>
         {moreOpen && (
@@ -220,7 +224,7 @@ export default function WordFinder(props: Props) {
               </label>
             )}
             <p className="field-help">
-              Letter run takes <strong>_</strong> as a one-letter gap, so <strong>E_O</strong> finds l<mark>emo</mark>n.
+              Letter run takes <strong>_</strong> as a one-letter gap{example ? <>, so <strong>{example.pattern.toUpperCase()}</strong> finds <mark>{example.hits.join(', ')}</mark> and more</> : null}.
               {dictionaries.length > 1 && ' Dictionary keeps only the words your game accepts.'}
             </p>
           </div>
@@ -235,14 +239,14 @@ export default function WordFinder(props: Props) {
 
       <section className="results card" ref={resultsRef} aria-label="Matching words">
         <div className="results-head">
-          <h3 aria-live="polite">{label.includes(' · ') ? <>{label.split(' · ')[0]}<span className="count"> · {label.split(' · ')[1]}</span></> : label}</h3>
+          <p className="results-title" role="status" aria-live="polite">{label.includes(' · ') ? <>{label.split(' · ')[0]}<span className="count"> · {label.split(' · ')[1]}</span></> : label}</p>
           <button type="button" className="link-btn" aria-haspopup="dialog" aria-expanded={panelOpen} onClick={() => setPanelOpen(true)}>Display options</button>
         </div>
 
         {panelOpen && (
           <div className="panel-backdrop" onClick={() => setPanelOpen(false)}>
             <div className="panel" role="dialog" aria-modal="true" aria-label="Display options" onClick={(e) => e.stopPropagation()}>
-              <div className="panel-head"><h3>Display options</h3><p>How the matching words are shown.</p></div>
+              <div className="panel-head"><h2 className="panel-title">Display options</h2><p>How the matching words are shown.</p></div>
               <ul>
                 {OPTIONS.map((o) => (
                   <li key={o.key}>

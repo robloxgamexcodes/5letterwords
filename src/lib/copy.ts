@@ -1,4 +1,6 @@
 import { fmt } from './words';
+import { collectionBySlug } from './collections';
+import type { ListKind } from './site';
 
 const NUM = ['', '', '', 'three', 'four', 'five', 'six', 'seven'];
 
@@ -6,7 +8,7 @@ export const finderIntro = (len: number, count: number) =>
   `A free ${len} letter word finder with ${fmt(count)} ${NUM[len]}-letter words. Enter what your puzzle has shown you - letters in place, letters out of place, letters ruled out - and get the words that still fit.`;
 
 export const finderMeta = (len: number) => ({
-  title: `${len} Letter Word Finder: Solve & Unscramble ${len} Letter Words`,
+  title: `${len} Letter Word Finder: Solve & Unscramble Words`,
   description: `Free ${len} letter word finder for Wordle, Scrabble and crosswords. Filter by letter position, included or excluded letters, prefix or suffix.`,
 });
 
@@ -53,20 +55,33 @@ export const finderArticle = (len: number) => ({
   ] as [string, string, string][],
 });
 
-export const listHeading = (len: number, kind: 'start' | 'end' | 'contain', value: string) => {
+const kindPhrase = (kind: ListKind, value: string) => {
+  const v = value.toUpperCase();
+  if (kind === 'set') return collectionBySlug(value)!.phrase;
+  return kind === 'start' ? `starting with ${v}` : kind === 'end' ? `ending in ${v}` : `containing ${v}`;
+};
+export const listHeading = (len: number, kind: ListKind, value: string) => {
+  if (kind === 'set') return `${len} Letter Words ${collectionBySlug(value)!.title}`;
   const v = value.toUpperCase();
   const kindText = kind === 'start' ? `That Start With ${v}` : kind === 'end' ? `That End With ${v}` : `Containing ${v}`;
   return `${len} Letter Words ${kindText}`;
 };
-export const listSub = (len: number, kind: 'start' | 'end' | 'contain', value: string, count: number) => {
-  const v = value.toUpperCase();
-  const how = kind === 'start' ? `beginning with ${v}` : kind === 'end' ? `ending in ${v}` : `containing ${v}`;
-  return `All ${fmt(count)} ${NUM[len]}-letter words ${how}, scored for Scrabble and Words With Friends.`;
+/** Page <title>: "All 167" when the full list is on the page, otherwise the plain count. */
+export const listTitle = (len: number, kind: ListKind, value: string, count: number, fullOnPage: boolean) => {
+  const full = `${listHeading(len, kind, value)}: ${fullOnPage ? 'All ' : ''}${fmt(count)}${fullOnPage ? '' : ' Words'}`;
+  return full.length <= 60 ? full : `${listHeading(len, kind, value)}: ${fmt(count)}`;
 };
-export const listMetaDesc = (len: number, kind: 'start' | 'end' | 'contain', value: string, count: number) => {
-  const v = value.toUpperCase();
-  const how = kind === 'start' ? `starting with ${v}` : kind === 'end' ? `ending with ${v}` : `containing ${v}`;
-  return `All ${fmt(count)} ${len}-letter words ${how}, with Scrabble scores. Narrow them down by letter position or rule out letters to find your Wordle answer.`;
+export const listSub = (len: number, kind: ListKind, value: string, count: number) =>
+  kind === 'set'
+    ? `${fmt(count)} ${NUM[len]}-letter words ${kindPhrase(kind, value)}. ${collectionBySlug(value)!.about}`
+    : `All ${fmt(count)} ${NUM[len]}-letter words ${kindPhrase(kind, value)}, scored for Scrabble and Words With Friends.`;
+export const listMetaDesc = (len: number, kind: ListKind, value: string, count: number, examples: string[] = []) => {
+  const how = kindPhrase(kind, value);
+  const base = `${fmt(count)} ${len}-letter words ${how}, with Scrabble scores.`;
+  const tail = 'Narrow them by letter position to find your Wordle answer.';
+  const withExamples = examples.length >= 3 ? `${base} Includes ${examples.slice(0, 3).map((w) => w.toUpperCase()).join(', ')}. ${tail}` : '';
+  const plain = `${base} ${tail}`;
+  return withExamples && withExamples.length <= 158 ? withExamples : plain.length <= 158 ? plain : base;
 };
 
 export const TOOL_PAGES = {
@@ -78,7 +93,7 @@ export const TOOL_PAGES = {
       { q: 'Does it tell me the answer?', a: 'No, and that is deliberate. It narrows the field to the words that are still possible and leaves the choice to you, so you get a hint without having the puzzle spoiled.' },
       { q: 'What is the difference between Wordle answers and Wordle guesses?', a: 'Wordle accepts a much larger list of words as guesses than it ever picks as an answer. Set the dictionary to Wordle answers only to see the shortlist that can actually be the word of the day; leave it on Wordle guesses to check whether a word will be accepted at all.' },
       { q: 'What if a letter shows up twice in the answer?', a: 'Switch on Count repeats under Display options and enter the letter in both Right spot and Wrong spot. Leave it off and the solver treats the two entries as one letter.' },
-      { q: 'What is a good Wordle starting word?', a: 'Words that spend all five slots on common letters do the most work: CRANE, SLATE, ADIEU and ROATE are popular openers. Any of them tends to light up a few tiles, which is enough to cut thousands of candidates down to a handful.' },
+      { q: 'What is a good Wordle starting word?', a: 'Words that spend all five slots on common letters do the most work, and popular openers such as CRANE, SLATE and ADIEU all follow that rule. Our own ranking, built from the letters shared by the most words in our list, is in the Best Wordle Starting Words guide. Any of them tends to light up a few tiles, which is enough to cut thousands of candidates down to a handful.' },
     ],
   },
   'word-unscrambler': {

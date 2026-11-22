@@ -7,6 +7,8 @@ export type Block =
   | { t: 'chips'; x: { w: string; n?: string | number }[]; lg?: boolean }
   | { t: 'table'; head: string[]; rows: string[][] };
 export type Guide = { slug: string; title: string; h1: string; description: string; blurb: string; minutes: number; blocks: Block[] };
+/** First publication date of the guides (ISO). */
+export const GUIDES_PUBLISHED = '2026-11-21';
 
 const w = (n: number) => getWords(n);
 const W5 = w(5);

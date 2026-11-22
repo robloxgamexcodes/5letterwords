@@ -8,24 +8,32 @@ export const SITE = {
   host: new URL(siteUrl).hostname,
   email: `contact@${new URL(siteUrl).hostname}`,
   year: new Date().getFullYear(),
+  locale: 'en',
+  tagline: 'Free word finders for Wordle, Scrabble and crosswords',
 };
+/** Absolute URL for a site path ('' or '/' = homepage, which always gets a trailing slash). */
+export const abs = (path = '') => (path === '' || path === '/' ? `${siteUrl}/` : `${siteUrl}${path.startsWith('/') ? path : `/${path}`}`);
+/** Build date, used for sitemap lastmod and schema dateModified. */
+export const BUILD_DATE = new Date().toISOString().slice(0, 10);
 export const LENGTHS = [3, 4, 5, 6, 7] as const;
 export type Len = (typeof LENGTHS)[number];
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
-export type ListKind = 'start' | 'end' | 'contain';
+export type ListKind = 'start' | 'end' | 'contain' | 'set';
 export const lengthPath = (len: number) => (len === 5 ? '/' : `/${len}-letter-word-finder`);
 export const listPath = (len: number, kind: ListKind, value: string) =>
-  `/${len}-letter-words-${kind === 'start' ? 'that-start-with' : kind === 'end' ? 'that-end-with' : 'containing'}-${value}`;
+  kind === 'set'
+    ? `/${len}-letter-words-${value}`
+    : `/${len}-letter-words-${kind === 'start' ? 'that-start-with' : kind === 'end' ? 'that-end-with' : 'containing'}-${value}`;
 
-// Header menu — same order as the live site (3, 4, 5, 7, 6).
+// Header menu: word lengths in order, then tools, guides and the play button.
 export const NAV = [
-  { label: 'Word Unscrambler', href: '/word-unscrambler' },
   { label: '3 Letter Words', href: lengthPath(3) },
   { label: '4 Letter Words', href: lengthPath(4) },
   { label: '5 Letter Words', href: lengthPath(5) },
-  { label: '7 Letter Words', href: lengthPath(7) },
   { label: '6 Letter Words', href: lengthPath(6) },
+  { label: '7 Letter Words', href: lengthPath(7) },
+  { label: 'Word Unscrambler', href: '/word-unscrambler' },
   { label: 'Guides', href: '/guides' },
   { label: '▶ Play', href: '/wordle', cta: true },
 ];
@@ -38,16 +46,18 @@ export const TOOL_CARDS = [
   { label: 'Word lists', hint: 'Every length, every letter', href: '/word-lists' },
 ];
 
-export const GAME_LINKS = [
+export const SOLVER_LINKS = [
   { label: 'Word Unscrambler', href: '/word-unscrambler' },
   { label: 'Word Scramble Solver', href: '/word-scramble' },
   { label: 'Anagram Solver', href: '/anagram-solver' },
   { label: 'Wordle Solver', href: '/wordle-solver' },
-  { label: 'Quordle', href: '/quordle' },
-  { label: 'Dordle', href: '/dordle' },
   { label: 'Crossword Solver', href: '/crossword' },
   { label: 'Scrabble Word Finder', href: '/scrabble' },
+];
+export const GAME_LINKS = [
   { label: 'Wordle', href: '/wordle' },
+  { label: 'Dordle', href: '/dordle' },
+  { label: 'Quordle', href: '/quordle' },
 ];
 
 export const MORE_TOOLS = [
@@ -100,4 +110,4 @@ export const FOOTER_COLUMNS = [
   },
 ];
 export const DEFAULT_OG = `${siteUrl}/og-default.png`;
-export const TWITTER_IMG = DEFAULT_OG;
+export const OG_SIZE = { width: 1200, height: 630 };

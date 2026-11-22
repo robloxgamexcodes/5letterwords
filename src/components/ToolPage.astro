@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Unscrambler from './finder/Unscrambler';
-import { MORE_TOOLS } from '../lib/site';
+import { BUILD_DATE, MORE_TOOLS, abs } from '../lib/site';
 import { TOOL_PAGES } from '../lib/copy';
 import { dictionariesFor } from '../lib/words';
 
@@ -26,6 +26,7 @@ const body: Record<string, string[]> = {
 ---
 <BaseLayout title={info.seoTitle ?? info.title} crumb={info.title} description={info.description}>
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebApplication', name: info.title, url: abs(`/${page}`), description: info.description, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', inLanguage: 'en', isAccessibleForFree: true, dateModified: BUILD_DATE, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, publisher: { '@id': `${abs('/')}#organization` } })} />
     <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: info.faq.map((f: any) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) })} />
   </Fragment>
   <div class="container page">

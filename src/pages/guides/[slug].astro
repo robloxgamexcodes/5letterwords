@@ -1,19 +1,18 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { GUIDES, guideBySlug } from '../../lib/guides';
-import { SITE } from '../../lib/site';
+import { GUIDES, GUIDES_PUBLISHED, guideBySlug } from '../../lib/guides';
+import { BUILD_DATE, SITE, abs } from '../../lib/site';
 
 export function getStaticPaths() { return GUIDES.map((g) => ({ params: { slug: g.slug } })); }
 const guide = guideBySlug(Astro.params.slug!)!;
 const related = GUIDES.filter((g) => g.slug !== guide.slug).slice(0, 3);
 ---
-<BaseLayout title={`${guide.title}: Data-Backed Guide`} description={guide.description} crumb={guide.title}>
+<BaseLayout title={`${guide.title}: Data-Backed Guide`} description={guide.description} crumb={guide.title} ogType="article">
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: guide.h1, description: guide.description, mainEntityOfPage: `${SITE.url}/guides/${guide.slug}`, publisher: { '@type': 'Organization', name: SITE.name } })} />
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'Article', headline: guide.h1, description: guide.description, mainEntityOfPage: abs(`/guides/${guide.slug}`), image: `${SITE.url}/og-default.png`, datePublished: GUIDES_PUBLISHED, dateModified: BUILD_DATE, inLanguage: 'en', author: { '@id': `${abs('/')}#organization` }, publisher: { '@id': `${abs('/')}#organization` } })} />
   </Fragment>
   <div class="container page narrow">
-    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides">Guides</a></nav>
-    <header class="page-head"><p class="eyebrow">{guide.minutes} min read</p><h1>{guide.h1}</h1><p>{guide.blurb}</p></header>
+    <header class="page-head"><p class="eyebrow">{guide.minutes} min read · Updated {BUILD_DATE}</p><h1>{guide.h1}</h1><p>{guide.blurb}</p></header>
     <article class="prose guide">
       {guide.blocks.map((b) => {
         if (b.t === 'p') return <p set:html={b.x} />;

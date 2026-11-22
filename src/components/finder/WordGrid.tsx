@@ -33,10 +33,10 @@ type ChipProps = { word: string; shown: string; pts?: number; liked: boolean; co
 const Chip = memo(function Chip({ word, shown, pts, liked, copied, tint, onCopy, onOpen, onLike }: ChipProps) {
   return (
     <li className={`word${liked ? ' is-liked' : ''}${copied ? ' is-copied' : ''}`}>
-      <button type="button" className="word-main" onClick={() => onOpen(word)} aria-label={`${shown} — view definition`} aria-haspopup="dialog">
+      <button type="button" className="word-main" onClick={() => onOpen(word)} aria-haspopup="dialog" data-tip="Click for definition">
         <span className="w">{[...shown].map((ch, i) => <span key={i} className={tint ? tint(word, i) : ''}>{ch}</span>)}</span>
         {pts !== undefined && <span className="pts">{pts}</span>}
-        <span className="word-tip" role="tooltip">Click for definition</span>
+        <span className="sr-only">, view definition</span>
       </button>
       <button type="button" className="like-btn" aria-pressed={liked} aria-label={liked ? `Unlike ${shown}` : `Like ${shown}`} title={liked ? 'Remove from liked' : 'Like this word'} onClick={() => onLike(word)}>
         <Heart filled={liked} />

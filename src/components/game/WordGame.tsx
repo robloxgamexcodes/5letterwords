@@ -168,7 +168,7 @@ export default function WordGame({ slug, boards, maxGuesses, title }: Props) {
 
       <div className="wg-boards">
         {answers.map((_, b) => (
-          <div key={b} className={`wg-board ${solvedAt[b] >= 0 ? 'solved' : ''}`} aria-label={`Board ${b + 1}`}>
+          <div key={b} className={`wg-board ${solvedAt[b] >= 0 ? 'solved' : ''}`} role="group" aria-label={`Board ${b + 1}`}>
             {rowsFor(b).map((row, r) => (
               <div key={r} className={`wg-row ${row.typing && shake ? 'shake' : ''}`}>
                 {Array.from({ length: 5 }, (_, i) => {

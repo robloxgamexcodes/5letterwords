@@ -5,14 +5,17 @@ import WordGame from './game/WordGame';
 import CrosswordSolver from './finder/CrosswordSolver';
 import Unscrambler from './finder/Unscrambler';
 import { dictionariesFor } from '../lib/words';
+import { BUILD_DATE, abs } from '../lib/site';
 interface Props { game: Game; }
 const { game } = Astro.props;
 // Games we ship ourselves (no third-party embed needed).
 const PLAYABLE: Record<string, { boards: 1 | 2 | 4; max: number }> = { wordle: { boards: 1, max: 6 }, dordle: { boards: 2, max: 7 }, quordle: { boards: 4, max: 9 } };
 const play = PLAYABLE[game.slug];
+const appLd = { '@context': 'https://schema.org', '@type': 'WebApplication', name: game.title, url: abs(`/${game.slug}`), description: game.description, applicationCategory: play ? 'GameApplication' : 'UtilitiesApplication', operatingSystem: 'Any (web browser)', inLanguage: 'en', isAccessibleForFree: true, dateModified: BUILD_DATE, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, publisher: { '@id': `${abs('/')}#organization` } };
 const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' ? 'scrabble' : null;
 ---
 <BaseLayout title={game.seoTitle} crumb={game.title} description={game.description}>
+  <Fragment slot="head"><script type="application/ld+json" set:html={JSON.stringify(appLd)} /></Fragment>
   <div class="container page game-page" data-game={game.slug}>
     <div class="game-card card">
       {tool ? (
@@ -35,10 +38,8 @@ const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' 
         <h1>{game.title}</h1>
         <div class="game-actions">
           <button type="button" class="chip-btn" data-like aria-pressed="false">Like</button>
-          <button type="button" class="chip-btn" data-dislike aria-pressed="false">Dislike</button>
-          <button type="button" class="chip-btn" data-add aria-pressed="false">Add</button>
           <button type="button" class="chip-btn" data-share>Share</button>
-          <button type="button" class="chip-btn" data-report>Report a bug</button>
+          <a class="chip-btn" href="/contact-us">Report a problem</a>
           <button type="button" class="chip-btn" data-fullscreen>Full Screen</button>
         </div>
       </div>
@@ -55,10 +56,6 @@ const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' 
     </article>
     <button type="button" class="btn btn-more" data-more>Show more</button>
 
-    <section class="comments" aria-labelledby="comments-title">
-      <h2 id="comments-title">Comment (0)</h2>
-      <p class="empty">Be the first to comment</p>
-    </section>
 
     <dialog class="modal" data-share-modal>
       <form method="dialog">
@@ -67,24 +64,6 @@ const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' 
         <input type="text" readonly data-share-url aria-label="Link" />
         <div class="modal-actions">
           <button type="button" class="btn btn-primary" data-copy>Copy link</button>
-          <button class="btn btn-ghost" value="close">Close</button>
-        </div>
-      </form>
-    </dialog>
-    <dialog class="modal" data-report-modal>
-      <form method="dialog">
-        <h2>What issue did you find in <strong>{game.title}</strong></h2>
-        <select aria-label="What issue did you find?">
-          <option>The game don't load</option>
-          <option>The game is not working</option>
-          <option>I lost my progress</option>
-          <option>I saw something inappropriate</option>
-          <option>I need help with an in-game purchase</option>
-          <option>I have a suggestion</option>
-          <option>Other</option>
-        </select>
-        <div class="modal-actions">
-          <button class="btn btn-primary" value="send">Send</button>
           <button class="btn btn-ghost" value="close">Close</button>
         </div>
       </form>
@@ -107,7 +86,7 @@ const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' 
     });
 
     const key = (k: string) => `5lw:game:${slug}:${k}`;
-    const wire = (sel: string, k: string, exclusive?: string) => {
+    const wire = (sel: string, k: string) => {
       const btn = q<HTMLButtonElement>(sel);
       const set = (on: boolean) => { btn.setAttribute('aria-pressed', String(on)); btn.classList.toggle('on', on); };
       try { set(localStorage.getItem(key(k)) === '1'); } catch { /* ignore */ }
@@ -115,12 +94,9 @@ const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' 
         const on = btn.getAttribute('aria-pressed') !== 'true';
         set(on);
         try { localStorage.setItem(key(k), on ? '1' : '0'); } catch { /* ignore */ }
-        if (on && exclusive) { const other = q<HTMLButtonElement>(exclusive); other.setAttribute('aria-pressed', 'false'); other.classList.remove('on'); try { localStorage.setItem(key(exclusive.includes('dislike') ? 'dislike' : 'like'), '0'); } catch { /* ignore */ } }
       });
     };
-    wire('[data-like]', 'like', '[data-dislike]');
-    wire('[data-dislike]', 'dislike', '[data-like]');
-    wire('[data-add]', 'add');
+    wire('[data-like]', 'like');
 
     q('[data-fullscreen]').addEventListener('click', () => (frame ?? root.querySelector<HTMLElement>('.game-card'))?.requestFullscreen?.());
     const share = q<HTMLDialogElement>('[data-share-modal]');
@@ -128,8 +104,6 @@ const tool = game.slug === 'crossword' ? 'crossword' : game.slug === 'scrabble' 
     q('[data-copy]').addEventListener('click', async (e) => {
       try { await navigator.clipboard.writeText(location.href); (e.currentTarget as HTMLElement).textContent = 'Copied'; } catch { q<HTMLInputElement>('[data-share-url]').select(); }
     });
-    q<HTMLDialogElement>('[data-report-modal]');
-    q('[data-report]').addEventListener('click', () => q<HTMLDialogElement>('[data-report-modal]').showModal());
 
     const copy = q('[data-collapsible]');
     const more = q<HTMLButtonElement>('[data-more]');

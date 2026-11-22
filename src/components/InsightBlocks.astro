@@ -68,8 +68,8 @@ const popEnd = [...suffixes].filter(([, n]) => n >= 8).sort((a, b) => b[1] - a[1
   <div class="ins-row">
     <h3>Popular {len} letter word searches</h3>
     <ul class="pill-links">
-      {popStart.map(([p, n]) => <li><a href={listPath(len, 'start', p)}>{len} letter words starting with {p.toUpperCase()}<small>{n}</small></a></li>)}
-      {popEnd.map(([s, n]) => <li><a href={listPath(len, 'end', s)}>{len} letter words ending in {s.toUpperCase()}<small>{n}</small></a></li>)}
+      {popStart.map(([p, n]) => <li><a href={listPath(len, 'start', p)} data-count={n}>{len} letter words starting with {p.toUpperCase()}</a></li>)}
+      {popEnd.map(([s, n]) => <li><a href={listPath(len, 'end', s)} data-count={n}>{len} letter words ending in {s.toUpperCase()}</a></li>)}
     </ul>
   </div>
 </section>

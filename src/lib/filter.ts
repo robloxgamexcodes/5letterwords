@@ -1,4 +1,7 @@
-export type Base = { kind: 'start' | 'end' | 'contain'; value: string } | null;
+import { collectionBySlug } from './collections';
+
+/** The fixed condition of a list page: starts with, ends with, contains, or a named pattern collection. */
+export type Base = { kind: 'start' | 'end' | 'contain' | 'set'; value: string } | null;
 export type Query = {
   len: number;
   right: string[]; wrong: string[]; dead: string[];
@@ -82,5 +85,6 @@ export function compile(q: Query): (word: string) => boolean {
 
 export function matchesBase(word: string, base: Base) {
   if (!base) return true;
+  if (base.kind === 'set') return collectionBySlug(base.value)?.test(word) ?? false;
   return base.kind === 'start' ? word.startsWith(base.value) : base.kind === 'end' ? word.endsWith(base.value) : word.includes(base.value);
 }

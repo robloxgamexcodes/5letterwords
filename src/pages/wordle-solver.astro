@@ -5,25 +5,26 @@ import BrowseLists from '../components/BrowseLists.astro';
 import WordleHelper from '../components/game/WordleHelper';
 import { MORE_TOOLS } from '../lib/site';
 import { TOOL_PAGES } from '../lib/copy';
-import { dictionariesFor, fmt, getData } from '../lib/words';
+import { dictionariesFor, fmt, getData, commonWords } from '../lib/words';
+import { BUILD_DATE, abs } from '../lib/site';
 
 const info = TOOL_PAGES['wordle-solver'];
 const has = dictionariesFor(5).includes('wordle-answers');
 const dictionary = has ? 'wordle-answers' : 'all';
-const n = has ? getData(5).sets['wordle-answers'].size : getData(5).words.length;
-const description = has
-  ? `Map your board onto the three rows and read off what is still possible. Below the solver is the full list of ${fmt(n)} words Wordle picks its answers from.`
-  : `Map your board onto the three rows and read off what is still possible. Below the solver is the full list of ${fmt(n)} five-letter words.`;
+const n = has ? getData(5).sets['wordle-answers'].size : commonWords(5).length;
+const description = `Enter your green, yellow and grey tiles and watch ${fmt(n)} everyday words narrow to the ones that still fit. Get next-guess ideas without spoilers.`;
+const appLd = { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Wordle Solver', url: abs('/wordle-solver'), description, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', inLanguage: 'en', isAccessibleForFree: true, dateModified: BUILD_DATE, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, publisher: { '@id': `${abs('/')}#organization` } };
 ---
 <BaseLayout title="Wordle Solver: Find Every Possible Answer from Your Clues" crumb="Wordle Solver" description={description}>
   <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(appLd)} />
     <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: info.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) })} />
   </Fragment>
   <div class="container page">
     <header class="page-head"><h1>Wordle Solver</h1><p>{description}</p></header>
     <WordleHelper client:load />
     <h2 class="section-title">Prefer filters? Use the full solver</h2>
-    <FinderBlock len={5} dictionary={dictionary} statusLabel="All words" pageSize={72} />
+    <FinderBlock len={5} dictionary={dictionary} statusLabel="Likely answers" pageSize={48} sample />
     <section class="more-tools" aria-labelledby="more-tools-title">
       <h2 id="more-tools-title">More Word Tools</h2>
       <ul class="tool-cards tool-cards-wide">
@@ -50,7 +51,6 @@ const description = has
         <li>Works on desktop and mobile</li>
       </ul>
     </section>
-    <BrowseLists len={5} />
     <section class="faq card block" aria-labelledby="faq-title">
       <h2 id="faq-title">Frequently asked questions</h2>
       {info.faq.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}

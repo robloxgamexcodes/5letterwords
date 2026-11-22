@@ -1,0 +1,26 @@
+---
+import { COLLECTIONS } from '../lib/collections';
+import { GUIDES } from '../lib/guides';
+import { listPath } from '../lib/site';
+import { collectionsFor } from '../lib/words';
+
+interface Props { len: number; currentSet?: string; }
+const { len, currentSet } = Astro.props;
+const sets = collectionsFor(len).filter((s) => s !== currentSet);
+const guides = GUIDES.slice(0, 3);
+---
+<section class="card block related-links" aria-labelledby={`related-${len}`}>
+  <h2 id={`related-${len}`}>More ways to explore {len} letter words</h2>
+  {sets.length > 0 && (
+    <>
+      <h3>By pattern</h3>
+      <ul class="pill-links">
+        {sets.map((slug) => <li><a href={listPath(len, 'set', slug)}>{len} letter words {COLLECTIONS.find((c) => c.slug === slug)!.title.toLowerCase()}</a></li>)}
+      </ul>
+    </>
+  )}
+  <h3>Guides</h3>
+  <ul class="pill-links">
+    {guides.map((g) => <li><a href={`/guides/${g.slug}`}>{g.title}</a></li>)}
+  </ul>
+</section>

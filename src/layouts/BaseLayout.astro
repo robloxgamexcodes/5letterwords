@@ -6,48 +6,83 @@ import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
-import { DEFAULT_OG, SITE, TWITTER_IMG, lengthPath } from '../lib/site';
+import { DEFAULT_OG, OG_SIZE, SITE, abs, lengthPath } from '../lib/site';
 
-interface Props { title: string; description: string; image?: string; noindex?: boolean; crumb?: string; }
-const { title, description, image = DEFAULT_OG, noindex = false, crumb } = Astro.props;
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  noindex?: boolean;
+  /** Short name for the last breadcrumb item (defaults to the title before the first colon). */
+  crumb?: string;
+  /** Open Graph type: 'website' for tools and lists, 'article' for guides. */
+  ogType?: 'website' | 'article';
+}
+const { title, description, image = DEFAULT_OG, noindex = false, crumb, ogType = 'website' } = Astro.props;
+
+// Clean path: no .html, no trailing slash ('' for the homepage).
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/(index)?$/, '');
-const canonical = `${SITE.url}${path}`;
-// BreadcrumbList: Home > (length finder, for list pages) > this page
-const items: { name: string; url: string }[] = [{ name: 'Home', url: SITE.url }];
+const canonical = abs(path);
+const isHome = path === '';
+
+// Breadcrumb trail: Home > (parent) > this page. Parents: length finder for lists, Guides for guide articles.
+const trail: { name: string; url: string }[] = [{ name: 'Home', url: abs('/') }];
 const listMatch = path.match(/^\/(\d)-letter-words-/);
-if (listMatch) items.push({ name: `${listMatch[1]} Letter Words`, url: `${SITE.url}${lengthPath(Number(listMatch[1])) === '/' ? '' : lengthPath(Number(listMatch[1]))}` });
-if (path) items.push({ name: crumb ?? title.split(':')[0], url: canonical });
-const breadcrumbs = items.length > 1
-  ? { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, item: it.url })) }
+if (listMatch) trail.push({ name: `${listMatch[1]} Letter Words`, url: abs(lengthPath(Number(listMatch[1]))) });
+if (/^\/guides\/.+/.test(path)) trail.push({ name: 'Guides', url: abs('/guides') });
+if (!isHome) trail.push({ name: crumb ?? title.split(':')[0], url: canonical });
+
+const breadcrumbs = !isHome
+  ? { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: trail.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, item: it.url })) }
   : null;
+
+// Sitewide entity data, emitted once on the homepage and referenced by @id from other pages.
+const siteGraph = isHome
+  ? {
+      '@context': 'https://schema.org',
+      '@graph': [
+        { '@type': 'Organization', '@id': `${abs('/')}#organization`, name: SITE.name, url: abs('/'), logo: { '@type': 'ImageObject', url: `${SITE.url}/logo.webp`, width: 615, height: 180 } },
+        { '@type': 'WebSite', '@id': `${abs('/')}#website`, url: abs('/'), name: SITE.name, description: SITE.tagline, inLanguage: SITE.locale, publisher: { '@id': `${abs('/')}#organization` } },
+      ],
+    }
+  : null;
+const imageAlt = `${SITE.name}: ${SITE.tagline}`;
 ---
 <!doctype html>
-<html lang="en" data-theme="light" data-contrast="normal">
+<html lang={SITE.locale} data-theme="light" data-contrast="normal">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui, shrink-to-fit=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
-    <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'} />
-    <meta name="HandheldFriendly" content="true" />
+    <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow,max-image-preview:large,max-snippet:-1'} />
+    <meta name="theme-color" content="#2f7d32" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content={SITE.name} />
     <link rel="canonical" href={canonical} />
-    <meta property="og:type" content="website" />
+    {!noindex && <link rel="alternate" hreflang={SITE.locale} href={canonical} />}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={canonical} />}
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={image} />
+    <meta property="og:image:width" content={String(OG_SIZE.width)} />
+    <meta property="og:image:height" content={String(OG_SIZE.height)} />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:url" content={canonical} />
-    <meta name="twitter:image" content={TWITTER_IMG} />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={imageAlt} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
     <script is:inline>
       // Apply saved display settings before first paint (no light/dark flash).
       try {
@@ -57,13 +92,23 @@ const breadcrumbs = items.length > 1
         r.dataset.contrast = s.contrast ? 'high' : 'normal';
       } catch (e) {}
     </script>
+    {siteGraph && <script type="application/ld+json" set:html={JSON.stringify(siteGraph)} />}
     {breadcrumbs && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbs)} />}
     <slot name="head" />
-<script src="https://analytics.ahrefs.com/analytics.js" data-key="YbIOqpsFk8m+5J9H3NGDxw" async></script>
+    <script src="https://analytics.ahrefs.com/analytics.js" data-key="YbIOqpsFk8m+5J9H3NGDxw" async></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <Header />
+    {!isHome && (
+      <nav class="container breadcrumb-bar" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          {trail.map((it, i) => (
+            <li>{i === trail.length - 1 ? <span aria-current="page">{it.name}</span> : <a href={it.url}>{it.name}</a>}</li>
+          ))}
+        </ol>
+      </nav>
+    )}
     <main id="main-content"><slot /></main>
     <Footer />
   </body>

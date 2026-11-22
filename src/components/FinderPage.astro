@@ -5,9 +5,11 @@ import BrowseLists from './BrowseLists.astro';
 import Hero from './Hero.astro';
 import InsightBlocks from './InsightBlocks.astro';
 import DailyStrip from './game/DailyStrip';
-import { countFor } from '../lib/words';
+import RelatedLinks from './RelatedLinks.astro';
+import { countFor, getWords } from '../lib/words';
+import { finderFacts } from '../lib/stats';
 import { finderArticle, finderFaq, finderIntro, finderMeta } from '../lib/copy';
-import { SITE } from '../lib/site';
+import { BUILD_DATE, abs, lengthPath } from '../lib/site';
 
 interface Props { len: number; }
 const { len } = Astro.props;
@@ -15,16 +17,17 @@ const count = countFor(len);
 const meta = finderMeta(len);
 const article = finderArticle(len);
 const faq = finderFaq(len, count);
-const url = len === 5 ? SITE.url : `${SITE.url}/${len}-letter-word-finder`;
+const url = abs(lengthPath(len));
+const facts = finderFacts(getWords(len), len);
 ---
 <BaseLayout title={meta.title} description={meta.description}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebApplication', name: `${len} Letter Words`, url, applicationCategory: 'GameApplication', operatingSystem: 'Any', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } })} />
+    <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebApplication', name: `${len} Letter Word Finder`, url, description: meta.description, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', browserRequirements: 'Requires JavaScript', inLanguage: 'en', dateModified: BUILD_DATE, isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, publisher: { '@id': `${abs('/')}#organization` } })} />
     <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) })} />
   </Fragment>
   <div class="container page">
     <Hero len={len} count={count} intro={finderIntro(len, count)} />
-    <FinderBlock len={len} statusLabel="Sample" pageSize={80} />
+    <FinderBlock len={len} statusLabel="Everyday words" pageSize={80} sample />
     <DailyStrip client:only="react" />
 
     <div class="blocks">
@@ -32,6 +35,7 @@ const url = len === 5 ? SITE.url : `${SITE.url}/${len}-letter-word-finder`;
       <section class="card block" aria-label={article.h2}>
         <h2>{article.h2}</h2>
         <p>{article.intro}</p>
+        <p>{facts}</p>
       </section>
       <section class="card block" aria-label={article.featuresH}>
         <h2>{article.featuresH}</h2>
@@ -50,6 +54,7 @@ const url = len === 5 ? SITE.url : `${SITE.url}/${len}-letter-word-finder`;
         <ul>{article.games.map(([name, href, text]) => <li><a href={href}>{name}</a> — {text}</li>)}</ul>
       </section>
 
+      <RelatedLinks len={len} />
       <BrowseLists len={len} />
 
       <section class="faq card block" aria-labelledby="faq-title">

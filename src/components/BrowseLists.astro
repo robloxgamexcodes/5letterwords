@@ -1,15 +1,18 @@
 ---
 import { ALPHABET, LENGTHS, listPath, type ListKind } from '../lib/site';
-import { hasList, prefixCounts } from '../lib/words';
+import { hasList, prefixCounts, suffixCounts } from '../lib/words';
 interface Props { len: number; currentStart?: string; currentEnd?: string; currentContain?: string; prefixLetter?: string; kind?: ListKind; value?: string; }
 const { len, currentStart, currentEnd, currentContain, prefixLetter, kind, value } = Astro.props;
 const starts = ALPHABET.filter((l) => hasList(len, 'start', l));
 const ends = ALPHABET.filter((l) => hasList(len, 'end', l));
 const contains = ALPHABET.filter((l) => hasList(len, 'contain', l));
 const prefixes = prefixLetter ? prefixCounts(len, prefixLetter) : [];
+// Endings (ER, ED, ING...) that finish in this page's last letter.
+const suffixLetter = kind === 'end' && value ? value[value.length - 1] : undefined;
+const suffixes = suffixLetter ? suffixCounts(len, suffixLetter) : [];
 // Same list for the other word lengths (e.g. 4 / 6 / 7 letter words starting with CO), only where that page exists.
 const kindText = kind === 'start' ? 'starting with' : kind === 'end' ? 'ending in' : 'containing';
-const others = kind && value ? LENGTHS.filter((n) => n !== len && hasList(n, kind, value)) : [];
+const others = kind && kind !== 'set' && value ? LENGTHS.filter((n) => n !== len && (hasList(n, kind, value) || suffixCounts(n, value[value.length - 1]).some((x) => x.suffix === value))) : [];
 ---
 <section class="browse card block" aria-labelledby="browse-title">
   <p class="eyebrow" id="browse-title">Browse {len} letter words</p>
@@ -36,7 +39,17 @@ const others = kind && value ? LENGTHS.filter((n) => n !== len && hasList(n, kin
       <h2>{len} letter words starting {prefixLetter!.toUpperCase()} + one more letter</h2>
       <ul class="prefix-grid">
         {prefixes.map(({ prefix, n }) => (
-          <li><a href={listPath(len, 'start', prefix)}>{prefix.toUpperCase()}<small>{n}</small></a></li>
+          <li><a href={listPath(len, 'start', prefix)} data-count={n}>{prefix.toUpperCase()}</a></li>
+        ))}
+      </ul>
+    </>
+  )}
+  {suffixes.length > 0 && (
+    <>
+      <h2>{len} letter words ending in {suffixLetter!.toUpperCase()}: common endings</h2>
+      <ul class="prefix-grid">
+        {suffixes.map(({ suffix, n }) => (
+          <li><a href={listPath(len, 'end', suffix)} data-count={n}>{suffix.toUpperCase()}</a></li>
         ))}
       </ul>
     </>

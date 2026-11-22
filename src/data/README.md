@@ -1,5 +1,11 @@
 # Word-list provenance
 
-`words.json` contains five-letter entries extracted from the CMU Pronouncing Dictionary (cmudict). The source dictionary is distributed under GNU GPL version 3 or later. See `WORDLIST-LICENSE.txt` for the license text.
+`generated/` is produced by `scripts/build-words.mjs` (runs before `dev` and `build`). Never edit it by hand.
 
-This starter includes the extracted dataset for evaluation and development. Before commercial launch, review the license obligations with counsel or replace the dataset with a word list whose license clearly permits your intended use. The list is not an official Wordle answer list and includes rare vocabulary.
+| Output | Source | Notes |
+| --- | --- | --- |
+| `words-3..7.json`, `meta.json` | `data-sources/enable1.txt` (+ optional dictionaries) | ENABLE word list, public domain. |
+| `answers-5.json` | `data-sources/answers-5.txt` | Curated everyday 5-letter words used by the games, the Wordle helper and "common first" ordering. Proper nouns, brands, places and offensive words are excluded. |
+| `common.json` | `data-sources/common-words.txt` | Everyday 3, 4, 6 and 7 letter words, listed first on sample lists. |
+
+Edit the files in `data-sources/`, then run `npm run build:words`.

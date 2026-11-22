@@ -3,11 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FinderPage from '../components/FinderPage.astro';
 import FinderBlock from '../components/FinderBlock.astro';
 import BrowseLists from '../components/BrowseLists.astro';
+import RelatedLinks from '../components/RelatedLinks.astro';
 import GamePage from '../components/GamePage.astro';
 import { GAMES } from '../lib/games';
-import { listHeading, listMetaDesc, listSub } from '../lib/copy';
-import { listPath, type ListKind } from '../lib/site';
-import { listRoutes, wordsWhere } from '../lib/words';
+import { listHeading, listMetaDesc, listSub, listTitle } from '../lib/copy';
+import { listFacts, listFaq } from '../lib/stats';
+import { BUILD_DATE, abs, listPath, type ListKind } from '../lib/site';
+import { SSR_LIST_LIMIT, isCommon, listRoutes, orderedWordsWhere } from '../lib/words';
 
 export function getStaticPaths() {
   const finders = [3, 4, 6, 7].map((len) => ({ params: { slug: `${len}-letter-word-finder` }, props: { type: 'finder', len } }));
@@ -21,36 +23,78 @@ export function getStaticPaths() {
 
 const props = Astro.props as any;
 const game = props.type === 'game' ? GAMES.find((g) => g.slug === props.slug)! : null;
+const isList = props.type === 'list';
 const kind = props.kind as ListKind;
-const count = props.type === 'list' ? wordsWhere(props.len, kind, props.value).length : 0;
-const title = props.type === 'list' ? `${listHeading(props.len, kind, props.value)}: All ${count.toLocaleString('en-US')}` : '';
+
+// List-page data, all computed from the dictionary.
+const words = isList ? orderedWordsWhere(props.len, kind, props.value) : [];
+const count = words.length;
+const heading = isList ? listHeading(props.len, kind, props.value) : '';
+const fullOnPage = count <= SSR_LIST_LIMIT;
+const examples = isList ? words.filter((w) => isCommon(props.len, w)).slice(0, 3) : [];
+const facts = isList ? listFacts(words, props.len, kind, props.value) : null;
+const faq = isList ? listFaq(words, props.len, kind, props.value) : [];
+const url = isList ? abs(listPath(props.len, kind, props.value)) : '';
+const jsonLd = isList
+  ? [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: heading,
+        url,
+        description: listSub(props.len, kind, props.value, count),
+        inLanguage: 'en',
+        dateModified: BUILD_DATE,
+        isPartOf: { '@id': `${abs('/')}#website` },
+        mainEntity: { '@type': 'ItemList', numberOfItems: count, itemListOrder: 'https://schema.org/ItemListUnordered', itemListElement: words.slice(0, 10).map((w, i) => ({ '@type': 'ListItem', position: i + 1, name: w })) },
+      },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(({ q, a }) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+    ]
+  : [];
 ---
 {props.type === 'finder' && <FinderPage len={props.len} />}
 {props.type === 'game' && game && <GamePage game={game} />}
-{props.type === 'list' && (
-  <BaseLayout title={title} description={listMetaDesc(props.len, kind, props.value, count)} crumb={listHeading(props.len, kind, props.value)} noindex={count < 5}>
+{isList && (
+  <BaseLayout
+    title={listTitle(props.len, kind, props.value, count, fullOnPage)}
+    description={listMetaDesc(props.len, kind, props.value, count, examples)}
+    crumb={heading}
+  >
+    <Fragment slot="head">
+      {jsonLd.map((j) => <script type="application/ld+json" set:html={JSON.stringify(j)} />)}
+    </Fragment>
     <div class="container page">
       <header class="page-head">
-        <h1>{listHeading(props.len, kind, props.value)}</h1>
+        <h1>{heading}</h1>
         <p>{listSub(props.len, kind, props.value, count)}</p>
       </header>
       <FinderBlock
         len={props.len}
         base={{ kind, value: props.value }}
         statusLabel="All words"
-        pageSize={72}
+        pageSize={SSR_LIST_LIMIT}
         activeLength={props.len}
       />
       <div class="blocks">
-      <BrowseLists
-        len={props.len}
-        currentStart={kind === 'start' && props.value.length === 1 ? props.value : undefined}
-        currentEnd={kind === 'end' ? props.value : undefined}
-        currentContain={kind === 'contain' ? props.value : undefined}
-        prefixLetter={kind === 'start' ? props.value[0] : undefined}
-        kind={kind}
-        value={props.value}
-      />
+        <section class="card block facts-card" aria-labelledby="facts-title">
+          <h2 id="facts-title">About these {props.len} letter words</h2>
+          <p class="list-facts">{facts!.intro}</p>
+          <p class="updated">Word list: ENABLE (public domain). Last updated {BUILD_DATE}. See <a href="/sources-methodology">sources and methodology</a>.</p>
+        </section>
+        <RelatedLinks len={props.len} currentSet={kind === 'set' ? props.value : undefined} />
+        <BrowseLists
+          len={props.len}
+          currentStart={kind === 'start' && props.value.length === 1 ? props.value : undefined}
+          currentEnd={kind === 'end' && props.value.length === 1 ? props.value : undefined}
+          currentContain={kind === 'contain' ? props.value : undefined}
+          prefixLetter={kind === 'start' ? props.value[0] : undefined}
+          kind={kind}
+          value={props.value}
+        />
+        <section class="faq card block" aria-labelledby="faq-title">
+          <h2 id="faq-title">Frequently asked questions</h2>
+          {faq.map(({ q, a }) => <details><summary>{q}</summary><p>{a}</p></details>)}
+        </section>
       </div>
     </div>
   </BaseLayout>

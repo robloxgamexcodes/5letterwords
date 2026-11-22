@@ -146,11 +146,11 @@ export default function Unscrambler({ mode, dictionaries }: Props) {
 
       {submitted && groups && (
         <section className="results card" aria-label="Results">
-          <div className="results-head"><h3 aria-live="polite">{total === 1 ? '1 word' : `${total.toLocaleString('en-US')} words`}</h3></div>
+          <div className="results-head"><p className="results-title" role="status" aria-live="polite">{total === 1 ? '1 word' : `${total.toLocaleString('en-US')} words`}</p></div>
           {groups.length === 0 && <p className="empty">No words found. Try different letters or loosen a filter.</p>}
           {groups.map(([len, list]) => (
             <div key={len} className="group">
-              <h4>{len} letter words <span>{list.length}</span></h4>
+              <h3>{len} letter words <span>{list.length}</span></h3>
               <WordGrid items={list} uppercase={settings?.uppercase} showPoints={showPoints} />
             </div>
           ))}

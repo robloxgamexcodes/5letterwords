@@ -1,11 +1,18 @@
 # 5 Letter Words
 
-> Free word finders for Wordle, Scrabble, crosswords and other word games.
+> Free word finders for Wordle, Scrabble, crosswords and other word games. 3 to 7 letter words, solvers, unscramblers and data-backed guides.
 
 ## Tools
-- 5 letter word finder (also 3, 4, 6 and 7 letters)
-- Wordle solver, word unscrambler, anagram solver, word scramble solver
-- Word lists: every length by first letter, last letter and contained letter
+- [5 letter word finder](https://5letterwords.se/): filter by right-spot, wrong-spot and excluded letters
+- [Wordle solver](https://5letterwords.se/wordle-solver)
+- [Word unscrambler](https://5letterwords.se/word-unscrambler)
+- [Anagram solver](https://5letterwords.se/anagram-solver)
+- [Word scramble solver](https://5letterwords.se/word-scramble)
+
+## Reference
+- [Word lists](https://5letterwords.se/word-lists): every length by first letter, last letter, contained letter, ending and pattern
+- [Guides](https://5letterwords.se/guides)
+- [Sources and methodology](https://5letterwords.se/sources-methodology)
 
 ## Note
-Word lists vary by game; check a word against your own game's dictionary when it matters.
+Word lists vary by game. The base dictionary is ENABLE (public domain); check a word against your own game when it matters.

@@ -1,9 +1,9 @@
 {
-  "name": "5letter-words",
+  "name": "5letterwords",
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "Astro replica starter for the 5letter-words.io word finder",
+  "description": "5 Letter Words: word finders, solvers and word lists (Astro, static)",
   "engines": {
     "node": ">=22.19.0"
   },
@@ -15,7 +15,9 @@
     "format": "prettier --write .",
     "prebuild": "node scripts/build-words.mjs",
     "predev": "node scripts/build-words.mjs",
-    "build:words": "node scripts/build-words.mjs"
+    "build:words": "node scripts/build-words.mjs",
+    "postbuild": "node scripts/check-seo.mjs",
+    "check:seo": "node scripts/check-seo.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.5",

@@ -11,5 +11,9 @@ export default defineConfig({
   trailingSlash: 'never',
   build: { format: 'file', inlineStylesheets: 'always' },
   vite: { plugins: [tailwindcss()] },
-  integrations: [react(), sitemap()],
+  integrations: [
+    react(),
+    // lastmod = build time; 404 and any noindex page are never listed.
+    sitemap({ lastmod: new Date(), filter: (page) => !/\/404(\.html)?\/?$/.test(page) }),
+  ],
 });

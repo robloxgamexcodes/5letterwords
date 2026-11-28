@@ -1,7 +1,7 @@
 // Post-build SEO guard. Fails the build if a page ships with a placeholder domain, wrong canonical,
 // missing/duplicate title or description, bad robots.txt or sitemap host, etc.
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const dist = join(fileURLToPath(new URL('..', import.meta.url)), 'dist');
@@ -13,7 +13,9 @@ const err = (f, m) => errors.push(`${f}: ${m}`);
 
 const walk = (d) => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const files = walk(dist);
-const html = files.filter((f) => f.endsWith('.html'));
+// Google Search Console verification files (googleXXXX.html) are bare text files, not real pages
+const isVerificationFile = (f) => /^google[a-z0-9]+\.html$/i.test(basename(f));
+const html = files.filter((f) => f.endsWith('.html') && !isVerificationFile(f));
 const titles = new Map();
 const descs = new Map();
 const attr = (src, re) => (src.match(re) || [])[1];
